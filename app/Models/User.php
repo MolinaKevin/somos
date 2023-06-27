@@ -60,4 +60,15 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+
+
+	/**
+	 * Relationships
+	 */
+
+	public function commerces()
+    {
+        return $this->belongsToMany(Commerce::class);
+    }
 }

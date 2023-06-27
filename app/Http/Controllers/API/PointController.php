@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class PointController extends Controller
 {
@@ -58,9 +60,18 @@ class PointController extends Controller
 		// obtén el usuario actualmente autenticado
 		$giver = auth('api')->user();
 
+		// Si el usuario no esta autenticado
+		if (!$giver) {
+			return response()->json([
+                'error' => 'Not authenticated.'
+            ], 401);
+		}
+
 		// asegúrate de que el usuario tiene suficientes puntos para dar
 		if ($giver->points < $validated['points']) {
-			return response()->json(['error' => 'Not enough points to give.'], 400);
+			return response()->json([
+                'error' => 'Not enough points to give.'
+            ], 402);
 		}
 
 		// obtén el usuario que recibirá los puntos
