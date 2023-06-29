@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Commerce::class);
     }
+
+	public function nros()
+    {
+        return $this->belongsToMany(Nro::class);
+    }
 }

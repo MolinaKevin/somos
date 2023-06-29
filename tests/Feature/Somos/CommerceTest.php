@@ -41,7 +41,6 @@ it('a user can have multiple commerces', function () {
     }
 });
 
-// Tests for the Commerce model
 it('has a name', function () {
     $commerce = Commerce::factory()->create(['name' => 'Test Commerce']);
 
