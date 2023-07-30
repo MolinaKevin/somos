@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\PointsPurchaseController;
+use App\Http\Controllers\PurchaseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,3 +35,10 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 });
+
+
+Route::get('pointsPurchase/pay/{uuid}', [PointsPurchaseController::class, 'pay'])->name('pointsPurchase.pay');
+Route::post('/pre-create-purchase', [PurchaseController::class, 'preCreate'])->name('preCreatePurchase');
+Route::post('purchase/pay/{uuid}', [PurchaseController::class, 'pay'])->name('purchase.pay');
+Route::get('purchase/pay/{uuid}', [PurchaseController::class, 'pay'])->name('purchase.pay');
+

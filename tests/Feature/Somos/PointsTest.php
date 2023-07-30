@@ -5,7 +5,7 @@ use Laravel\Sanctum\Sanctum;
 
 test('user can give and get points', function () {
 
-	$points = 2000;
+	$points = 2000.0;
     $giver = User::factory()->create(['points' => $points*2]);
 	$token = $giver->createToken('login')->plainTextToken;
 
@@ -46,7 +46,7 @@ test('user can give and get points', function () {
 
 test('user get unauthenticated', function () {
 
-	$points = 2000;
+	$points = 2000.0;
     $giver = User::factory()->create(['points' => $points*2]);
 
 	$receiver = User::factory()->create();
@@ -84,12 +84,12 @@ test('user get unauthenticated', function () {
 
     // Asegurarse de que los puntos no fueron transferidos 
     expect($giver->points)->toBe($points*2);
-    expect($receiver->points)->toBe(0);
+    expect($receiver->points)->toBe(0.0);
 });
 
 test('user cannot give more points as he have', function () {
 
-	$points = 2000;
+	$points = 2000.0;
     $giver = User::factory()->create(['points' => $points/2]);
 	$token = $giver->createToken('login')->plainTextToken;
 
@@ -129,5 +129,5 @@ test('user cannot give more points as he have', function () {
 
     // Asegurarse de que los puntos no fueron transferidos 
     expect($giver->points)->toBe($points/2);
-    expect($receiver->points)->toBe(0);
+    expect($receiver->points)->toBe(0.0);
 });

@@ -11,6 +11,8 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+
 
 class User extends Authenticatable
 {
@@ -28,7 +30,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 'email', 'password', 'points'
+        'name', 'email', 'password', 'points', 'pass', 'referrer_pass'
     ];
 
     /**
@@ -62,6 +64,64 @@ class User extends Authenticatable
     ];
 
 
+	protected static function booted()
+	{
+		static::saving(function ($user) {
+			if (! $user->isDirty('referrer_pass')) {
+				return;
+			}
+
+			$original_referrer_pass = $user->getOriginal('referrer_pass');
+
+			if (! is_null($original_referrer_pass)) {
+				$user->referrer_pass = $original_referrer_pass;
+			}
+		});
+	}
+
+	/**
+	 * Methods
+	 */
+
+	/**
+     * Calculate referral points based on initial points and referral level.
+     *
+     * @param float $initialPoints The initial points to base the calculation on.
+     * @param int $level The referral level (1-8).
+     * @return float
+     */
+    public function calculateReferralPoints(float $initialPoints, int $level): float
+    {
+        // El porcentaje inicial es 25%
+        $percentage = 25;
+
+        // Reducimos el porcentaje a la mitad con cada nivel
+        for ($i = 1; $i <= $level; $i++) {
+            $percentage /= 2;
+        }
+        // No entregamos puntos de referido más allá del nivel 8
+        if ($level >= 8) {
+            return 0;
+        }
+		
+        // Calculamos y devolvemos los puntos de referido
+        return ($initialPoints * $percentage / 100);
+    }
+
+	public function payPointsPurchaseThroughQr($qrCodeData)
+	{
+		// No need to decode, $qrCodeData is already an array
+		$decodedData = $qrCodeData;
+
+		// Search the commerce using the commerceId from the decoded data
+		$commerce = Commerce::find($decodedData['commerceId']);
+
+		// Use the commerce to find the PointsPurchase
+		$pointsPurchase = $commerce->pointsPurchases()->find($decodedData['pointsPurchaseId']);
+
+		// Pay for the PointsPurchase with the user's points
+		$this->payWithPoints($pointsPurchase);
+	}
 
 	/**
 	 * Relationships
@@ -69,11 +129,18 @@ class User extends Authenticatable
 
 	public function commerces()
     {
-        return $this->belongsToMany(Commerce::class);
+        return $this->morphedByMany(Commerce::class, 'entityable');
     }
+	
 
 	public function nros()
     {
-        return $this->belongsToMany(Nro::class);
+        return $this->morphedByMany(Nro::class, 'entityable');
     }
+
+	public function referrer()
+	{
+		return $this->belongsTo(User::class, 'referrer_pass', 'pass');
+	}
+
 }

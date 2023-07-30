@@ -17,6 +17,7 @@ it('can register a new user', function () {
 	$time = time();
     $userData = [
         'name' => 'Test User',
+        'pass' => 'DE-111111111',
         'email' => 'test'.$time.'@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
@@ -106,4 +107,5 @@ it('can create users with different roles', function () {
     $this->assertTrue($user2->roles->contains($role2));
     $this->assertTrue($user3->roles->contains($role3));
 });
+
 

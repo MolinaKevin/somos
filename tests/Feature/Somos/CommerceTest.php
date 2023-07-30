@@ -2,11 +2,16 @@
 
 use App\Models\User;
 use App\Models\Commerce;
+use App\Models\Purchase;
+use App\Models\Entity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 
 it('a user can have a commerce', function () {
     $user = User::factory()->create();
-    $commerce = Commerce::factory()->create();
+	$commerce = Commerce::factory()->create();
+	$entity = Entity::factory()->make([]);
+	$commerce->entity()->save($entity);
 
     // Attach the commerce to the user
     $user->commerces()->attach($commerce->id);
@@ -16,7 +21,7 @@ it('a user can have a commerce', function () {
 });
 
 it('a commerce can have multiple users', function () {
-    $commerce = Commerce::factory()->create();
+	$commerce = Commerce::factory()->create(); // Esto crea también una Entity
     $users = User::factory()->count(3)->create();
 
     // Attach the users to the commerce
@@ -30,7 +35,7 @@ it('a commerce can have multiple users', function () {
 
 it('a user can have multiple commerces', function () {
     $user = User::factory()->create();
-    $commerces = Commerce::factory()->count(3)->create();
+	$commerces = Commerce::factory()->count(3)->create(); // Esto crea también una Entity para cada Commerce
 
     // Attach the commerces to the user
     $user->commerces()->attach($commerces->pluck('id'));
@@ -42,15 +47,29 @@ it('a user can have multiple commerces', function () {
 });
 
 it('has a name', function () {
-    $commerce = Commerce::factory()->create(['name' => 'Test Commerce']);
+	$commerce = Commerce::factory()->create();
+	$entity = Entity::factory()->make([
+		'name' => 'Test Commerce',
+	]);
+	$commerce->entity()->save($entity);
+
+	$commerce->load('entity');
 
     $this->assertEquals('Test Commerce', $commerce->name);
 });
 
 it('can be found by its name', function () {
-    $commerce = Commerce::factory()->create(['name' => 'Test Commerce']);
+	$commerce = Commerce::factory()->create();
+	$entity = Entity::factory()->make([
+		'name' => 'Test Commerce',
+	]);
+	$commerce->entity()->save($entity);
 
-    $foundCommerce = Commerce::where('name', 'Test Commerce')->first();
+
+    $foundEntity = Entity::where('name', 'Test Commerce')->first();
+	$foundCommerce = $foundEntity->entityable;
+
+	$foundCommerce->load('entity');
 
     $this->assertInstanceOf(Commerce::class, $foundCommerce);
     $this->assertEquals('Test Commerce', $foundCommerce->name);

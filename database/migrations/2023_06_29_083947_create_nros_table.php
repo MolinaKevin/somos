@@ -14,22 +14,8 @@ return new class extends Migration
         Schema::create('nros', function (Blueprint $table) {
             $table->id();
 
-            $table->string('name');
-            $table->text('description')->nullable();
-			$table->string('address');
-            $table->string('city');
-            $table->string('plz');
-
-			$table->string('email')->nullable();
-            $table->string('phone_number')->nullable();
-            $table->string('website')->nullable();
-	
-            $table->text('operating_hours')->nullable();
-            $table->decimal('latitude', 10, 8)->nullable();
-            $table->decimal('longitude', 11, 8)->nullable();
-
-            $table->integer('points')->default(0);
-            $table->double('percent')->default(10);
+			$table->double('contributed_points')->default(0);
+			$table->double('to_contribute')->default(0);
 
             $table->timestamps();
         });
