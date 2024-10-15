@@ -1,6 +1,13 @@
 <div>
     <h2>Fotos</h2>
 
+    <!-- Mensaje de éxito -->
+    @if (session()->has('message'))
+        <div class="alert alert-success">
+            {{ session('message') }}
+        </div>
+    @endif
+
     <div class="accordion" id="photoAccordion">
         @foreach ($entitys as $entity)
             <div class="accordion-item">
@@ -12,15 +19,36 @@
                 @if ($expandedItem == $entity->id)
                     <div id="collapse{{ $entity->id }}" class="accordion-collapse" aria-labelledby="heading{{ $entity->id }}" data-bs-parent="#photoAccordion">
                         <div class="accordion-body">
-                            <div class="row">
-                                @foreach ($entity->fotos as $foto)
-                                    <div class="col-6 col-md-4 col-lg-3 mb-2">
-                                        <div class="photo-item">
-                                            <img src="{{ asset($foto->url) }}" alt="Foto" class=" img-thumbnail">
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Foto</th>
+                                        <th>Path</th>
+                                        <th>Fondo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($entity->fotos as $foto)
+                                        <tr>
+                                            <td>
+                                                <img src="{{ asset($foto->url) }}" alt="Foto" class="img-thumbnail" style="width: 100px; height: auto;">
+                                            </td>
+                                            <td>{{ $foto->url }}</td>
+                                            <td>
+                                                @if ($foto->url == $entity->background_image)
+                                                    Sí
+                                                @else
+                                                    No
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-danger" wire:click="confirmDelete({{ $foto->id }})">Eliminar</button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 @endif

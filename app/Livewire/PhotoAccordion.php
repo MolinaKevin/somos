@@ -3,21 +3,19 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 use App\Models\Foto;
 use App\Models\Commerce;
 use App\Models\Nro;
 
 class PhotoAccordion extends Component
 {
-    public $expandedItem = null; // Solo un elemento expandido
+    public $expandedItem = null;
+    public $photoIdToDelete = null;
 
-    public function toggle($fotableId)
+    public function toggle($id)
     {
-        if ($this->expandedItem === $fotableId) {
-            $this->expandedItem = null;
-        } else {
-            $this->expandedItem = $fotableId;
-        }
+        $this->expandedItem = $this->expandedItem === $id ? null : $id;
     }
 
     public function render()
@@ -33,6 +31,16 @@ class PhotoAccordion extends Component
         return view('livewire.photo-accordion', [
             'entitys' => $entitys,
         ]);
+    }
+
+    public function confirmDelete($fotoId)
+    {
+        $foto = Foto::find($fotoId);
+        if ($foto) {
+            $foto->delete(); // Eliminar la foto
+            session()->flash('message', 'Foto eliminada exitosamente.');
+        }
+        $this->photoIdToDelete = null; // Resetea la variable
     }
 }
 

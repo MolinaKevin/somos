@@ -28,7 +28,7 @@ it('shows admin options when authenticated', function () {
     $response->assertSee('Administrar cashouts');
     $response->assertSee('Administrar compras');
     $response->assertSee('Administrar compras con puntos');
-    $response->assertSee('Administrar imagenes de fondo');
+    $response->assertSee('Administrar imágenes de fondo');
 
     // Comprobar que cada enlace redirige a la URL correcta
     $this->get('/admin/commerces')->assertStatus(200);
