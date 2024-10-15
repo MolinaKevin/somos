@@ -4,19 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasPoints;
 
 class Donation extends Model
 {
-    use HasFactory;
+    use HasFactory, HasPoints;
 
     protected $fillable = [
         'commerce_id',
         'nro_id',
-        'amount',
-        'donated_amount',
+        'points',
+        'donated_points',
         'is_paid',
-        'closure_id',
+        'cashout_id',
     ];
+
+    /**
+     * Relations
+     */
 
     public function commerce()
     {

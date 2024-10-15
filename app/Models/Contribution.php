@@ -15,7 +15,7 @@ class Contribution extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-		'amount', 'somos_id', 'nro_id' 
+		'points', 'somos_id', 'nro_id' 
     ];
 
     public function somos()

@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('closures', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('commerce_id');
 			$table->double('donated_points')->default(0);
 			$table->double('gived_points')->default(0);
-			$table->double('amount')->default(0);
+			$table->double('points')->default(0);
 
+            $table->unsignedBigInteger('commerce_id');
             $table->foreign('commerce_id')->references('id')->on('commerces')->onDelete('cascade');
 
             $table->timestamps();

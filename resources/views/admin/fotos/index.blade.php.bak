@@ -1,0 +1,60 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h1>Administrar Fotos</h1>
+    
+    {{-- Botón para mostrar todas las fotos --}}
+    <button id="showAllPhotos" class="btn btn-primary">Mostrar todas las fotos</button>
+
+    <div class="accordion" id="photoAccordion">
+        @foreach($commerces as $commerce)
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ $commerce->id }}">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $commerce->id }}" aria-expanded="true" aria-controls="collapse{{ $commerce->id }}">
+                        {{ $commerce->name }}
+                    </button>
+                </h2>
+                <div id="collapse{{ $commerce->id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ $commerce->id }}" data-bs-parent="#photoAccordion">
+                    <div class="accordion-body">
+                        @foreach($commerce->fotos as $foto)
+                            <div class="photo-item">
+                                <img src="{{ asset($foto->path) }}" alt="Foto" class="img-thumbnail">
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endforeach
+
+        @foreach($nros as $nro)
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingNro{{ $nro->id }}">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNro{{ $nro->id }}" aria-expanded="true" aria-controls="collapseNro{{ $nro->id }}">
+                        {{ $nro->name }}
+                    </button>
+                </h2>
+                <div id="collapseNro{{ $nro->id }}" class="accordion-collapse collapse" aria-labelledby="headingNro{{ $nro->id }}" data-bs-parent="#photoAccordion">
+                    <div class="accordion-body">
+                        @foreach($nro->fotos as $foto)
+                            <div class="photo-item">
+                                <img src="{{ asset($foto->path) }}" alt="Foto" class="img-thumbnail">
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+</div>
+
+<script>
+    document.getElementById('showAllPhotos').addEventListener('click', function() {
+        var accordions = document.querySelectorAll('.accordion-collapse');
+        accordions.forEach(function(accordion) {
+            accordion.classList.toggle('show');
+        });
+    });
+</script>
+@endsection
+

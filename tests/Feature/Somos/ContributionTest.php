@@ -2,18 +2,13 @@
 
 use App\Models\Nro;
 use App\Models\Somos;
-use App\Models\Entity;
 
-it('makes a contribution of the remaining amount after applying the entity percentage', function () {
+it('makes a contribution of the remaining points after applying the entity percentage', function () {
     // Creamos una instancia de Somos
     $somos = Somos::factory()->create(['points' => 0]);
 
     // Creamos una Nro relacionada con la entidad y con Somos, y con un contributed_points de 1000
-	$nro = Nro::factory()->create(['somos_id' => $somos->id, 'to_contribute' => 1000]);
-    // Creamos una entidad con un porcentaje del 10%
-    $entity = Entity::factory()->create(['percent' => 10]);
-	$nro->entity()->save($entity);
-
+	$nro = Nro::factory()->create(['somos_id' => $somos->id, 'to_contribute' => 1000, 'percent' => 10]);
 
     // Realizamos la contribución
     $nro->contribute();
@@ -26,7 +21,7 @@ it('makes a contribution of the remaining amount after applying the entity perce
     $this->assertDatabaseHas('contributions', [
 		'somos_id' => $somos->id,
         'nro_id' => $nro->id,
-		'amount' => 900
+		'points' => 900
 	]);
 
     $this->assertEquals(900, $somos->points);
@@ -34,15 +29,12 @@ it('makes a contribution of the remaining amount after applying the entity perce
     $this->assertEquals(0, $nro->to_contribute);
 });
 
-it('makes no contribution if the donated_amount is 0', function () {
+it('makes no contribution if the donated_points is 0', function () {
     // Creamos una instancia de Somos
     $somos = Somos::factory()->create(['points' => 0]);
 
     // Creamos una Nro relacionada con la entidad y con Somos, y con un contributed_points de 1000
-	$nro = Nro::factory()->create(['somos_id' => $somos->id, 'to_contribute' => 0]);
-    // Creamos una entidad con un porcentaje del 10%
-    $entity = Entity::factory()->create(['percent' => 10]);
-	$nro->entity()->save($entity);
+	$nro = Nro::factory()->create(['somos_id' => $somos->id, 'to_contribute' => 0, 'percent' => 10]);
 
     // Realizamos la contribución
     $nro->contribute();
@@ -54,7 +46,7 @@ it('makes no contribution if the donated_amount is 0', function () {
     $this->assertDatabaseHas('contributions', [
 		'somos_id' => $somos->id,
         'nro_id' => $nro->id,
-		'amount' => 0
+		'points' => 0
 	]);
 
 

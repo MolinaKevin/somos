@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('contributions', function (Blueprint $table) {
             $table->id();
 
-            $table->double('amount');
+            $table->double('points');
 
 			$table->unsignedBigInteger('somos_id')->nullable();
             $table->foreign('somos_id')->references('id')->on('somos')->onDelete('cascade');

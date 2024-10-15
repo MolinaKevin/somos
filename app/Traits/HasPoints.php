@@ -5,35 +5,60 @@ namespace App\Traits;
 trait HasPoints
 {
     /**
-     * Returns the 'money' attribute based on 'amount' or 'points' attribute.
+     * Formatea los números eliminando ceros no necesarios.
+     * Este método devuelve un string solo para mostrar el valor.
      */
-    public function getMoneyAttribute()
+    public function formatNumber($value)
     {
-        // Imaginamos que 1 punto es igual a 0.01 en dinero
-        $conversionRate = 0.01;
-
-        if (isset($this->attributes['points'])) {
-            return $this->attributes['points'] * $conversionRate;
-        }
-
-        if (isset($this->attributes['amount'])) {
-            return $this->attributes['amount'] * $conversionRate;
-        }
-
-        return null;
+        return rtrim(rtrim(number_format($value, 3, ',', '.'), '0'), ',');
     }
 
     /**
-     * Transform a given amount of points into money.
-     * 
-     * @param float $points
-     * 
-     * @return float
+     * Accesor para 'points' que mantiene el valor como número para operaciones.
      */
-    public function transformPointsToMoney(float $points): float
+    public function getPointsAttribute($value) 
     {
-        // Imaginamos que 1 punto es igual a 0.01 en dinero
-        return $points * 0.01;
+        return $value; // Mantener el valor como número.
+    }
+
+    /**
+     * Accesor para 'donated_points'.
+     */
+    public function getDonatedPointsAttribute($value)
+    {
+        return $value; // Mantener el valor como número.
+    }
+
+    /**
+     * Accesor para 'gived_to_users_points'.
+     */
+    public function getGivedToUsersPointsAttribute($value)
+    {
+        return $value; // Mantener el valor como número.
+    }
+
+    /**
+     * Método para obtener el valor formateado de 'points'.
+     */
+    public function getFormattedPointsAttribute() 
+    {
+        return $this->formatNumber($this->points);
+    }
+
+    /**
+     * Método para obtener el valor formateado de 'donated_points'.
+     */
+    public function getFormattedDonatedPointsAttribute() 
+    {
+        return $this->formatNumber($this->donated_points);
+    }
+
+    /**
+     * Método para obtener el valor formateado de 'gived_to_users_points'.
+     */
+    public function getFormattedGivedToUsersPointsAttribute() 
+    {
+        return $this->formatNumber($this->gived_to_users_points);
     }
 }
 

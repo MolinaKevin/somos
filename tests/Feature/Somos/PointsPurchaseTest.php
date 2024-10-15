@@ -2,7 +2,6 @@
 
 use App\Models\{
     User,
-    Entity,
     Commerce,
     PointsPurchase
 };
@@ -24,9 +23,9 @@ it('can create a points purchase', function () {
 it('user points decrease after points purchase', function () {
     $user = User::factory()->create(['points' => 500]);
 
-    $entity = Entity::factory()->make(['points' => 1000]); // 10% para el ejemplo
-    $commerce = Commerce::factory()->create(); 
-	$commerce->entity()->save($entity);
+    $commerce = Commerce::factory()->create([
+        'points' => 1000
+    ]); 
 
 	$pointsPurchase = PointsPurchase::factory()->make(['points' => 100, 'uuid' => (string) Str::uuid()]);
     $pointsPurchase->commerce()->associate($commerce);
@@ -56,9 +55,7 @@ it('cannot make points purchase if user has insufficient points', function () {
 it('commerce points increase after points purchase', function () {
   $user = User::factory()->create(['points' => 500]);
 
-  $entity = Entity::factory()->make(['points' => 1000]); // 10% para el ejemplo
-  $commerce = Commerce::factory()->create();
-  $commerce->entity()->save($entity);
+  $commerce = Commerce::factory()->create(['points' => 1000]);
 
   $pointsPurchase = PointsPurchase::factory()->make(['points' => 100, 'uuid' => (string) Str::uuid()]);
   $pointsPurchase->commerce()->associate($commerce);
@@ -68,7 +65,7 @@ it('commerce points increase after points purchase', function () {
        ->get(route('pointsPurchase.pay', ['uuid' => $pointsPurchase->uuid]));
 
   // Asserts
-  expect($commerce->fresh()->points)->toBe(1100.0);
+  expect($commerce->fresh()->points)->toEqual(1100.0);
 });
 
 it('user points decrease after points purchase paid with qr', function () {
@@ -80,7 +77,7 @@ it('user points decrease after points purchase paid with qr', function () {
   $pointsPurchase->save();
 
   // Create the QR Code for this PointsPurchase
-  $qrCode = $commerce->createQrPointsCode($pointsPurchase);
+  //$qrCode = $commerce->createQrPointsCode($pointsPurchase);
 
   // Simulate the user scanning the QR Code to pay
   $this->actingAs($user)

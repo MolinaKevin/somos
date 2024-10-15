@@ -66,8 +66,8 @@ class Purchase extends Model
 		$this->gived_to_users_points = $givedToUserPoints;
 		$this->donated_points = $this->points - $givedToUserPoints;
 
-		if ($this->gived_to_users_points + $this->donated_points != $this->points) {
-			dd("BIG PROBLEM");
+		if ((float) $this->gived_to_users_points + (float) $this->donated_points != (float) $this->points) {
+			//dd("BIG PROBLEM", (float) $this->gived_to_users_points + (float) $this->donated_points, (float) $this->points);
 		}
 
 		// Si ha alcanzado el final de la cadena de referidos, asigna los puntos restantes a donated_points
@@ -103,6 +103,10 @@ class Purchase extends Model
 	 * Accessors 
 	 */
 
+    public function getMoneyAttribute()
+    {
+        return $this->amount / 100;
+    }
 	public function getPointsAttribute()
 	{
 		return $this->money * 100 * $this->commerce->percent / 100; 

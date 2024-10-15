@@ -4,12 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class Nro extends Model
 {
     use HasFactory;
 
-    protected $with = ['entity'];
+    protected $fillable = ['somos_id', 'contributed_points', 'to_contribute', 'name', 'description', 'address', 'city', 
+        'plz', 'email', 'phone_number', 'website', 'opening_time', 'closing_time', 
+        'latitude', 'longitude', 'points', 'percent', 'accepted', 'active',
+    ];
+    protected $appends = ['is_open', 'avatar_url', 'background_image', 'fotos_urls'];
+    protected $casts = [
+        'opening_time' => 'datetime:H:i',
+        'closing_time' => 'datetime:H:i',
+        'accepted' => 'boolean',
+        'active' => 'boolean',
+    ];
 
 	/**
 	 * Methods
@@ -29,7 +41,7 @@ class Nro extends Model
 
         
         $contribution = new Contribution([
-            'amount' => $contributionAmount,
+            'points' => $contributionAmount,
             'somos_id' => $this->somos->id,
         ]);
 
@@ -42,54 +54,66 @@ class Nro extends Model
     /**
      * Accessors
      */
+    
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
+            // Si el avatar está presente, devolver la URL completa
+            return asset('storage/' . $this->avatar);
+        }
 
-    public function getPercentAttribute() {
-        return $this->entity->percent;
+        // Si no hay avatar, devolver la URL del avatar por defecto
+        return asset('storage/avatars/avatar_fake.png');
     }
 
-	/**
-	 * Magic methods for morph relation
-	 */
+    public function getBackgroundImageAttribute()
+    {
+        // Si el comercio tiene una imagen de fondo asociada, devolver la URL
+        if ($this->background_image_id) {
+            $foto = Foto::find($this->background_image_id);
+            return $foto ? asset('storage/'. $foto->path) : asset('storage/fotos/nros/default_background.jpg');
+        }
 
-	public function __get($key)
-	{
-		if (
-			array_key_exists($key, $this->attributes) ||
-			array_key_exists($key, $this->relations)
-		) {
-			return parent::__get($key);
-		}
+        // Si no tiene imagen de fondo, devolver una URL por defecto
+        return asset('storage/fotos/nros/default_background.jpg');
+    }
 
-		// Check if the entity relation is loaded and if it's not null
-		if ($this->relationLoaded('entity') && $this->entity !== null) {
-			// If the entity has the attribute, return it
-			if (array_key_exists($key, $this->entity->getAttributes())) {
-				return $this->entity->$key;
-			}
-		}
+    public function getFotosUrlsAttribute()
+    {
+        return $this->fotos
+            ->filter(function ($foto) {
+                // Excluir la foto que está asignada como background_image
+                return $foto->id !== $this->background_image_id;
+            })
+            ->map(function ($foto) {
+                return asset('storage/' . $foto->path);
+            })
+            ->values(); // Asegurarse de reiniciar las claves de la colección
+    }
 
-		return parent::__get($key);
-	}
+    public function getIsOpenAttribute()
+    {
+        $now = Carbon::now();
+        $openingTime = Carbon::parse($this->opening_time);
+        $closingTime = Carbon::parse($this->closing_time);
 
-	
-	public function __set($key, $value)
-	{
-		if ($this->relationLoaded('entity') && array_key_exists($key, $this->entity->getAttributes())) {
-			$this->entity->$key = $value;
-		} else {
-			parent::__set($key, $value);
-		}
-	}
+        return $now->between($openingTime, $closingTime);
+    }
 
+    public function getOpeningTimeAttribute($value)
+    {
+        return Carbon::parse($value)->format('H:i');
+    }
 
-	public function save(array $options = [])
-	{
-		if ($this->relationLoaded('entity')) {
-			$this->entity->save();
-		}
+    public function getClosingTimeAttribute($value)
+    {
+        return Carbon::parse($value)->format('H:i');
+    }
 
-		return parent::save($options);
-	}
+    public static function getNrosWithPhotos()
+    {
+        return self::has('fotos')->with('fotos')->get();
+    }
 
     /**
 	 * Relationships
@@ -97,13 +121,8 @@ class Nro extends Model
 	
     public function users()
     {
-        return $this->morphToMany(User::class, 'entityable');
+        return $this->belongsToMany(User::class);
     }
-
-	public function entity()
-	{
-		return $this->morphOne(Entity::class, 'entityable');
-	}
 
 	public function somos()
 	{
@@ -113,6 +132,16 @@ class Nro extends Model
     public function contributions()
     {
         return $this->hasMany(Contribution::class);
+    }
+
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
+    }
+
+    public function fotos()
+    {
+        return $this->morphMany(Foto::class, 'fotable');
     }
 
 }

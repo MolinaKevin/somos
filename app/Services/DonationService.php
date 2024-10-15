@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Donation;
-use App\Models\Closure;
+use App\Models\Cashout;
 use App\Models\Commerce;
 use App\Models\Nro;
 use App\Exceptions\InsufficientDonatedPointsException;
@@ -15,29 +15,29 @@ class DonationService
      *
      * @param Commerce $commerce
      * @param Nro $nro
-     * @param float $amount
+     * @param float $points
      * @param bool $isPaid
      * @return Donation
      * @throws InsufficientDonated_pointsException
      */
-    public function createDonation(Commerce $commerce, Nro $nro, float $amount, bool $isPaid = false): Donation
+    public function createDonation(Commerce $commerce, Nro $nro, float $points, bool $isPaid = false): Donation
     {
-        if ($commerce->gived_points < $amount) {
+        if ($commerce->gived_points < $points) {
             throw new InsufficientDonatedPointsException('The Commerce does not have enough gived points to create this donation');
         }
 
         $donation = new Donation([
             'commerce_id' => $commerce->id,
             'nro_id' => $nro->id,
-            'amount' => $amount,
-            'donated_amount' => $commerce->calculateDonation($amount),
+            'points' => $points,
+            'donated_points' => $commerce->calculateDonation($points),
             'is_paid' => $isPaid,
         ]);
 
         $donation->save();
 
         // Reduce donated_points from the commerce
-        $commerce->gived_points -= $amount;
+        $commerce->gived_points -= $points;
         $commerce->save();
 
         return $donation;
@@ -51,22 +51,22 @@ class DonationService
 
     public function createDonationPackage(Commerce $commerce, array $donationData, bool $isPaid = false): array
     {
-        // Calculate the total amount of the donation package
+        // Calculate the total points of the donation package
         $totalAmount = array_reduce($donationData, function ($carry, $item) {
-            return $carry + $item['amount'];
+            return $carry + $item['points'];
         }, 0);
 
-        // Check that the total amount of the donation package does not exceed the donated points
+        // Check that the total points of the donation package does not exceed the donated points
         if ($commerce->gived_points < $totalAmount) {
-            throw new InsufficientDonatedPointsException('The total amount of the donation package exceeds the Commerce\'s gived points');
+            throw new InsufficientDonatedPointsException('The total points of the donation package exceeds the Commerce\'s gived points');
         }
 
-        // Check that the total amount of the donation package does not leave more than 1 donated point
+        // Check that the total points of the donation package does not leave more than 1 donated point
         if ($commerce->gived_points - $totalAmount > 1) {
-            throw new ExcessiveDonatedPointsException('The total amount of the donation package leaves more than 1 donated point');
+            throw new ExcessiveDonatedPointsException('The total points of the donation package leaves more than 1 donated point');
         }
 
-        // Only create the donations if the total amount of the donation package leaves 1 or less donated points
+        // Only create the donations if the total points of the donation package leaves 1 or less donated points
         if ($commerce->gived_points - $totalAmount < 1) {
             // Create the donations
             $donations = [];
@@ -74,8 +74,8 @@ class DonationService
                 $donation = new Donation([
                     'commerce_id' => $commerce->id,
                     'nro_id' => $data['nro']->id,
-                    'amount' => $data['amount'],
-                    'donated_amount' => $commerce->calculateDonation($data['amount']),
+                    'points' => $data['points'],
+                    'donated_points' => $commerce->calculateDonation($data['points']),
                     'is_paid' => $isPaid,
                 ]);
                 $donation->save();
@@ -91,32 +91,32 @@ class DonationService
         return [];
     }
     
-    public function createDonationClosure(Commerce $commerce, array $donationData, bool $isPaid = false): Closure
+    public function createDonationCashout(Commerce $commerce, array $donationData, bool $isPaid = false): Cashout
     {
-        // Calculate the total amount of the donation package
+        // Calculate the total points of the donation package
         $totalAmount = array_reduce($donationData, function ($carry, $item) {
-            return $carry + $item['amount'];
+            return $carry + $item['points'];
         }, 0);
 
-        // Check that the total amount of the donation package does not exceed the donated points
+        // Check that the total points of the donation package does not exceed the donated points
         if ($commerce->gived_points < $totalAmount) {
-            throw new InsufficientDonatedPointsException('The total amount of the donation package exceeds the Commerce\'s gived points');
+            throw new InsufficientDonatedPointsException('The total points of the donation package exceeds the Commerce\'s gived points');
         }
 
-        // Check that the total amount of the donation package does not leave more than 1 donated point
+        // Check that the total points of the donation package does not leave more than 1 donated point
         if ($commerce->gived_points - $totalAmount > 1) {
-            throw new ExcessiveDonatedPointsException('The total amount of the donation package leaves more than 1 donated point');
+            throw new ExcessiveDonatedPointsException('The total points of the donation package leaves more than 1 donated point');
         }
 
-        // Creamos un nuevo Closure y lo guardamos en la base de datos
-        $closure = new Closure([
+        // Creamos un nuevo Cashout y lo guardamos en la base de datos
+        $cashout = new Cashout([
             'commerce_id' => $commerce->id,
-            'amount' => $totalAmount,
+            'points' => $totalAmount,
         ]);
         
-        $closure->setCommerce($commerce);
+        $cashout->setCommerce($commerce);
 
-        $closure->save();
+        $cashout->save();
 
         $donations = [];
 
@@ -124,10 +124,10 @@ class DonationService
             $donation = new Donation([
                 'commerce_id' => $commerce->id,
                 'nro_id' => $data['nro']->id,
-                'amount' => $data['amount'],
-                'donated_amount' => $data['donated_amount'],
+                'points' => $data['points'],
+                'donated_points' => $data['donated_points'],
                 'is_paid' => $isPaid,
-                'closure_id' => $closure->id,
+                'cashout_id' => $cashout->id,
             ]);
 
             $donation->save();
@@ -139,7 +139,7 @@ class DonationService
         $commerce->gived_points -= $totalAmount;
         $commerce->save();
 
-        return $closure;
+        return $cashout;
 
     }
 

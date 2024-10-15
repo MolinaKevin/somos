@@ -3,8 +3,24 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Livewire\Livewire;
 use App\Http\Controllers\PointsPurchaseController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\Admin\{
+    CommerceController,
+    NroController,
+    UserController,
+    SomosController,
+    DonationController,
+    ContributionController,
+    CashoutController,
+    PurchaseController as AdminPurchaseController,
+    PointsPurchaseController as AdminPointsPurchaseController,
+    FotoController,
+};
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -26,15 +42,25 @@ Route::get('/', function () {
     ]);
 });
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
+        return view('dashboard.index');
     })->name('dashboard');
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('commerces', CommerceController::class);
+        Route::resource('nros', NroController::class);
+        Route::resource('clients', UserController::class);
+        Route::resource('somos', SomosController::class);
+        Route::resource('donations', DonationController::class);
+        Route::resource('contributions', ContributionController::class);
+        Route::resource('cashouts', CashoutController::class);
+        Route::resource('purchases', AdminPurchaseController::class);
+        Route::resource('pointsPurchases', AdminPointsPurchaseController::class);
+        Route::resource('fotos', FotoController::class);
+    });
 });
+
 
 
 Route::get('pointsPurchase/pay/{uuid}', [PointsPurchaseController::class, 'pay'])->name('pointsPurchase.pay');

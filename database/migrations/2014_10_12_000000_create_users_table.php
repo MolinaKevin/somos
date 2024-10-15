@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-			$table->string('pass')->unique()->index()->default('XX-ZZZZZZZZZ');
+			$table->string('pass')->index()->default('XX-ZZZZZZZZZ');
 			$table->string('referrer_pass')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

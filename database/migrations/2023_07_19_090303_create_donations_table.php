@@ -14,8 +14,8 @@ class CreateDonationsTable extends Migration
             $table->unsignedBigInteger('commerce_id');
             $table->unsignedBigInteger('nro_id');
             $table->unsignedBigInteger('closure_id')->nullable();
-            $table->decimal('amount', 8, 2);
-            $table->decimal('donated_amount', 8, 2);
+            $table->decimal('points', 8, 2);
+            $table->decimal('donated_points', 8, 2);
             $table->boolean('is_paid')->default(false);
             $table->timestamps();
 

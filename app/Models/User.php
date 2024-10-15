@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Silber\Bouncer\Database\HasRolesAndAbilities;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -10,19 +11,18 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 
 class User extends Authenticatable
 {
     use HasApiTokens;
-	use HasRoles;
     use HasFactory;
     use HasProfilePhoto;
     use HasTeams;
     use Notifiable;
     use TwoFactorAuthenticatable;
+    use HasRolesAndAbilities;
 
     /**
      * The attributes that are mass assignable.
@@ -123,24 +123,51 @@ class User extends Authenticatable
 		$this->payWithPoints($pointsPurchase);
 	}
 
+    public function getReferralsCount(int $level): int
+    {
+        if ($level < 1 || $level > 7) {
+            return 0;
+        }
+
+        $currentLevelPasses = collect([$this->pass]);
+
+        for ($i = 1; $i <= $level; $i++) {
+            // Obtener los referidos del nivel actual
+            $currentLevelPasses = User::whereIn('referrer_pass', $currentLevelPasses)->pluck('pass');
+
+            // Si estamos en el nivel deseado, retornamos el conteo
+            if ($i === $level) {
+                return $currentLevelPasses->count();
+            }
+        }
+
+        return 0;
+    }
+
+
+
 	/**
 	 * Relationships
 	 */
 
-	public function commerces()
+    public function commerces()
     {
-        return $this->morphedByMany(Commerce::class, 'entityable');
+        return $this->belongsToMany(Commerce::class);
     }
-	
 
 	public function nros()
     {
-        return $this->morphedByMany(Nro::class, 'entityable');
+        return $this->belongsToMany(Nro::class);
     }
 
 	public function referrer()
 	{
 		return $this->belongsTo(User::class, 'referrer_pass', 'pass');
 	}
+
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class);
+    }
 
 }

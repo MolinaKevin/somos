@@ -55,7 +55,10 @@ class PurchaseController extends Controller
 			'user' => User::where('pass',$data['userPass'])->firstOrFail(),
 			'purchase' => $purchase,
 			'url' => $url,
-		]);
+        ],
+        200,
+        [],
+        JSON_PRESERVE_ZERO_FRACTION);
 	}
 
 }

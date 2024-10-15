@@ -1,0 +1,68 @@
+// resources/sass/app.scss
+$primary-color: #3490dc;
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #f8fafc;
+    color: #333;
+}
+
+h1 {
+    color: $primary-color;
+    text-align: center;
+}
+
+.accordion-button {
+    background-color: $primary-color;
+    color: white;
+    border: none;
+
+    &:hover {
+        background-color: darken($primary-color, 10%);
+    }
+}
+
+.photo-item {
+    margin: 10px 0;
+
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+    }
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+
+    h1 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .admin-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+            margin: 10px 0;
+
+            a {
+                text-decoration: none;
+                color: #007bff;
+                font-weight: bold;
+                transition: color 0.3s;
+
+                &:hover {
+                    color: #0056b3;
+                }
+            }
+        }
+    }
+}
+

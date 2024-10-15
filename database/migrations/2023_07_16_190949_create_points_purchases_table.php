@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('points_purchases', function (Blueprint $table) {
             $table->id();
 
-			$table->double('amount')->default(0.0);
 			$table->double('points')->default(0.0);
 	
 			$table->uuid('uuid')->unique(); 
