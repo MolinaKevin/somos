@@ -6,6 +6,14 @@ use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
 
+beforeEach(function () {
+    // Crear un usuario antes de cada prueba
+    $this->user = User::factory()->create([
+        'language' => 'en', // Idioma por defecto
+    ]);
+});
+
+
 it('logs in an existing user through the API', function () {
     // Create a user
     $user = User::factory()->create([
@@ -30,6 +38,36 @@ it('logs in an existing user through the API', function () {
     $this->assertNotNull($response['token']);
 });
 
+it('creates a new user through the API', function () {
+    // Datos de creación de usuario
+    $userData = [
+        'name' => 'Test User',
+        'email' => 'testuser@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'language' => 'en', // Puedes establecerlo explícitamente si lo deseas
+    ];
+
+    // Llamada a la API para crear un nuevo usuario
+    $response = $this->postJson('/api/register', $userData);
+
+    // Verifica que la respuesta sea exitosa
+    $response->assertStatus(201);
+
+    // Verifica que el usuario se haya creado en la base de datos
+    $this->assertDatabaseHas('users', [
+        'email' => 'testuser@example.com',
+        'name' => 'Test User',
+        'language' => 'en', // Verifica que el idioma se haya guardado correctamente
+    ]);
+
+    $response->assertJsonStructure(['user' => ['name', 'email', 'language']]);
+    $this->assertEquals('Test User', $response['user']['name']);
+    $this->assertEquals('testuser@example.com', $response['user']['email']);
+    $this->assertEquals('en', $response['user']['language']);
+});
+
+
 it('returns the profile of the authenticated user', function () {
     // Create a user
     $user = User::factory()->create();
@@ -40,17 +78,19 @@ it('returns the profile of the authenticated user', function () {
     );
 
     // The API call
-    $response = $this->getJson('/api/user');
+    $response = $this->getJson('/api/users');
 
     // Assert the response
     $response->assertStatus(200);
 
     // Assert the correct user data was returned
-    $this->assertEquals($user->id, $response['id']);
-    $this->assertEquals($user->name, $response['name']);
-    $this->assertEquals($user->email, $response['email']);
+    $response->assertJsonFragment(['id' => $user->id]);
+    $response->assertJsonFragment(['name' => $user->name]);
+    $response->assertJsonFragment(['email' => $user->email]);
+    
+    // Assert the language is defaulting to English if none set
+    $response->assertJsonFragment(['language' => 'en']);
 });
-
 
 it('returns the user points and all referral counts as 0 for a new user', function () {
     // Create a user with a set number of points
@@ -62,7 +102,7 @@ it('returns the user points and all referral counts as 0 for a new user', functi
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/user/data');
+    $response = $this->getJson('/api/users/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -75,7 +115,6 @@ it('returns the user points and all referral counts as 0 for a new user', functi
         $this->assertEquals(0, $response['referrals']['level_' . $level]);
     }
 });
-
 
 it('returns the user points and only level 1 referrals count', function () {
     // Create a user with a set number of points
@@ -92,7 +131,7 @@ it('returns the user points and only level 1 referrals count', function () {
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/user/data');
+    $response = $this->getJson('/api/users/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -130,7 +169,7 @@ it('returns the user points and level 1 and 2 referrals count', function () {
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/user/data');
+    $response = $this->getJson('/api/users/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -175,7 +214,7 @@ it('returns the user points and level 1 and 2 referrals count with random level 
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/user/data');
+    $response = $this->getJson('/api/users/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -241,7 +280,7 @@ it('returns the user points and referral counts for levels 0 to 7', function () 
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/user/data');
+    $response = $this->getJson('/api/users/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -328,7 +367,7 @@ it('returns only levels 1 to 7 referrals and ignores level 8 and above', functio
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/user/data');
+    $response = $this->getJson('/api/users/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -375,7 +414,7 @@ it('returns levels 1 to 7 referrals and calculates lowlevelrefs as the sum of le
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/user/data');
+    $response = $this->getJson('/api/users/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -395,5 +434,167 @@ it('returns levels 1 to 7 referrals and calculates lowlevelrefs as the sum of le
     $this->assertEquals(3, $response['referrals']['level_1']); // Nivel 1 debería tener 3 usuarios
     $this->assertEquals(6, $response['referrals']['level_2']); // Nivel 2 debería tener 6 usuarios (2 por cada usuario de nivel 1)
     // Y así sucesivamente para los demás niveles si deseas verificar
+});
+
+// NUEVO TEST PARA VERIFICAR IDIOMA
+it('returns the user language and updates it', function () {
+    // Crear un usuario con idioma por defecto
+    $userData = [
+        'name' => 'Test User',
+        'email' => 'testuser@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'language' => null, // Aquí puedes dejarlo como null o simplemente omitirlo
+    ];
+
+    // Realiza la solicitud al endpoint de registro
+    $response = $this->postJson('/api/register', $userData);
+
+    // Asegúrate de que la respuesta es correcta
+    $response->assertStatus(201);
+
+    $user = User::findOrFail($response['user']['id']);
+
+    Sanctum::actingAs($user, ['*']);
+
+    // Llamada al endpoint /api/user
+    $response = $this->getJson('/api/user');
+
+    // Verifica que el idioma devuelto sea el por defecto (inglés)
+    $this->assertEquals('en', $response['language']);
+
+    // Actualizar idioma del usuario
+    $updateData = ['language' => 'es'];
+
+    $response = $this->putJson('/api/user', $updateData);
+
+    // Verifica que la actualización fue exitosa
+    $response->assertStatus(200);
+
+    // Llama nuevamente al endpoint /api/user
+    $response = $this->getJson('/api/user');
+
+    // Verifica que el idioma haya sido actualizado correctamente
+    $this->assertEquals('es', $response['language']);
+});
+
+it('retrieves the authenticated user', function () {
+    // Autenticar al usuario
+    Sanctum::actingAs($this->user, ['*']);
+
+    // Llamar al endpoint
+    $response = $this->getJson('/api/user');
+
+    // Verificar que la respuesta sea exitosa
+    $response->assertStatus(200);
+
+    // Verificar que la respuesta contenga los datos del usuario
+    $response->assertJson([
+        'id' => $this->user->id,
+        'name' => $this->user->name,
+        'email' => $this->user->email,
+        'language' => 'en',
+    ]);
+});
+
+it('updates the authenticated user language', function () {
+    // Autenticar al usuario
+    Sanctum::actingAs($this->user, ['*']);
+
+    // Datos para actualizar
+    $updateData = ['language' => 'es'];
+
+    // Llamar al endpoint para actualizar
+    $response = $this->putJson('/api/user', $updateData);
+
+    // Verificar que la actualización fue exitosa
+    $response->assertStatus(200);
+
+    // Refrescar el objeto del usuario
+    $this->user->refresh();
+
+    // Verificar que el idioma se haya actualizado
+    expect($this->user->language)->toBe('es');
+});
+
+it('returns validation errors when updating with invalid data', function () {
+    // Autenticar al usuario
+    Sanctum::actingAs($this->user, ['*']);
+
+    // Datos inválidos para actualizar
+    $updateData = ['language' => '']; // Lenguaje vacío no es válido
+
+    // Llamar al endpoint para actualizar
+    $response = $this->putJson('/api/user', $updateData);
+
+    // Verificar que se devuelvan errores de validación
+    $response->assertStatus(422);
+});
+
+it('updates the authenticated user name', function () {
+    // Autenticar al usuario
+    Sanctum::actingAs($this->user, ['*']);
+
+    // Datos para actualizar el nombre
+    $updateData = ['name' => 'Updated User'];
+
+    // Llamar al endpoint para actualizar
+    $response = $this->putJson('/api/user', $updateData);
+
+    // Verificar que la actualización fue exitosa
+    $response->assertStatus(200);
+
+    // Refrescar el objeto del usuario
+    $this->user->refresh();
+
+    // Verificar que el nombre se haya actualizado
+    expect($this->user->name)->toBe('Updated User');
+});
+
+it('returns validation errors when updating email with existing email', function () {
+    // Crear otro usuario
+    $anotherUser = User::factory()->create([
+        'email' => 'otheruser@example.com',
+    ]);
+
+    // Autenticar al usuario
+    Sanctum::actingAs($this->user, ['*']);
+
+    // Intentar actualizar el email a uno existente
+    $updateData = ['email' => 'otheruser@example.com'];
+
+    // Llamar al endpoint para actualizar
+    $response = $this->putJson('/api/user', $updateData);
+
+    // Verificar que se devuelvan errores de validación
+    $response->assertStatus(422);
+});
+
+it('returns validation errors when updating with invalid email', function () {
+    // Autenticar al usuario
+    Sanctum::actingAs($this->user, ['*']);
+
+    // Intentar actualizar el email a uno inválido
+    $updateData = ['email' => 'invalid-email'];
+
+    // Llamar al endpoint para actualizar
+    $response = $this->putJson('/api/user', $updateData);
+
+    // Verificar que se devuelvan errores de validación
+    $response->assertStatus(422);
+});
+
+it('returns validation errors when updating with invalid password', function () {
+    // Autenticar al usuario
+    Sanctum::actingAs($this->user, ['*']);
+
+    // Intentar actualizar con una contraseña corta
+    $updateData = ['password' => 'short'];
+
+    // Llamar al endpoint para actualizar
+    $response = $this->putJson('/api/user', $updateData);
+
+    // Verificar que se devuelvan errores de validación
+    $response->assertStatus(422);
 });
 

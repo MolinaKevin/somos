@@ -14,6 +14,7 @@ use App\Http\Controllers\API\SomosController;
 use App\Http\Controllers\API\NroController;
 use App\Http\Controllers\API\UserNroController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\ImageUploadController;
 use App\Http\Controllers\API\AvatarUploadController;
@@ -40,8 +41,10 @@ Route::get('/commerces', [CommerceController::class, 'index']);
 Route::get('/nros', [NroController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', [UserController::class, 'show']); 
+    Route::get('user', [UserController::class, 'show']); 
+    Route::put('user', [UserController::class, 'update']); 
     Route::get('/user/data', [UserController::class, 'data']);
+    Route::apiResource('users', UsersController::class); 
     Route::apiResource('somos', SomosController::class)->parameters(['somos' => 'somos']);
     Route::apiResource('user/commerces', UserCommerceController::class);
     Route::apiResource('user/nros', UserNroController::class);
@@ -69,5 +72,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/nros/{id}/upload-avatar', [AvatarUploadController::class, 'uploadNroAvatar']);
 });
 
-Route::get('/users', [UserController::class, 'index']); 
 

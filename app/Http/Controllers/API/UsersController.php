@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class UserController extends Controller
+class UsersController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -25,7 +25,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         // Validar y crear un nuevo usuario
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(),[
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
@@ -34,6 +34,12 @@ class UserController extends Controller
             'referrer_pass' => 'nullable|string',
             'current_team_id' => 'nullable|integer',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $validatedData = $validator->validated();
 
         $user = User::create([
             'name' => $validatedData['name'],
@@ -51,23 +57,23 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request)
+
+    public function show(User $user)
     {
-        return response()->json($request->user());
+        return response()->json($user);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request, User $user)
     {
-        $user = Auth::user();
         // Validar y actualizar un usuario
         $validator = Validator::make($request->all(),[
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'sometimes|string|min:8',
-            'language' => 'sometimes|string|min:1|max:2', // Asegúrate de incluir el idioma
+            'language' => 'sometimes|string|min:2|max:2', // Asegúrate de incluir el idioma
         ]);
 
         if ($validator->fails()) {
@@ -84,6 +90,7 @@ class UserController extends Controller
 
         return response()->json($user);
     }
+
     /**
      * Remove the specified resource from storage.
      */
