@@ -15,8 +15,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Devuelve todos los usuarios
-        return User::all();
+        $user = Auth::user();
+
+        return $user;
     }
 
     /**
@@ -105,15 +106,15 @@ class UserController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Iniciamos el array de referidos
+        // Inicializar el array de referidos y el contador de referidos de niveles bajos
         $referrals = [];
         $lowLevelRefs = 0;
 
-        // Contamos los referidos para cada nivel
+        // Contar los referidos por nivel
         for ($level = 1; $level <= 7; $level++) {
             $referrals['level_' . $level] = $user->getReferralsCount($level);
 
-            // Acumulamos los referidos de niveles 2 al 7 en lowlevelrefs
+            // Acumular referidos de niveles 2 a 7 en `lowLevelRefs`
             if ($level >= 2) {
                 $lowLevelRefs += $referrals['level_' . $level];
             }
@@ -126,6 +127,34 @@ class UserController extends Controller
         ]);
     }
 
+
+
     
+    public function uploadAvatar(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'avatar' => 'required|image|max:2048', // Asegúrate de ajustar las reglas según tus necesidades
+        ]);
+
+        // Guardar el avatar y actualizar el modelo de usuario
+        $path = $request->file('avatar')->storeAs("avatars/users", $user->id, 'public');
+        $user->profile_photo_path = $path;
+        $user->save();
+
+        return response()->json(['message' => 'Avatar uploaded successfully.'], 200);
+    }
+
+    public function referralPurchasePoints(Request $request)
+    {
+        $user = Auth::user();
+
+        $referralPoints = $user->getReferralPurchasePointsWithoutUser();
+
+        return response()->json(['data' => $referralPoints]);
+    }
+    
+
 }
 

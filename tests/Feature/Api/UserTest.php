@@ -78,7 +78,7 @@ it('returns the profile of the authenticated user', function () {
     );
 
     // The API call
-    $response = $this->getJson('/api/users');
+    $response = $this->getJson('/api/user');
 
     // Assert the response
     $response->assertStatus(200);
@@ -102,7 +102,7 @@ it('returns the user points and all referral counts as 0 for a new user', functi
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/users/data');
+    $response = $this->getJson('/api/user/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -131,7 +131,7 @@ it('returns the user points and only level 1 referrals count', function () {
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/users/data');
+    $response = $this->getJson('/api/user/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -169,7 +169,7 @@ it('returns the user points and level 1 and 2 referrals count', function () {
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/users/data');
+    $response = $this->getJson('/api/user/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -214,7 +214,7 @@ it('returns the user points and level 1 and 2 referrals count with random level 
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/users/data');
+    $response = $this->getJson('/api/user/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -280,7 +280,7 @@ it('returns the user points and referral counts for levels 0 to 7', function () 
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/users/data');
+    $response = $this->getJson('/api/user/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -367,7 +367,7 @@ it('returns only levels 1 to 7 referrals and ignores level 8 and above', functio
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/users/data');
+    $response = $this->getJson('/api/user/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -414,7 +414,7 @@ it('returns levels 1 to 7 referrals and calculates lowlevelrefs as the sum of le
     Sanctum::actingAs($user, ['*']);
 
     // Llamada al endpoint /api/user/data
-    $response = $this->getJson('/api/users/data');
+    $response = $this->getJson('/api/user/data');
 
     // Verifica que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -596,5 +596,63 @@ it('returns validation errors when updating with invalid password', function () 
 
     // Verificar que se devuelvan errores de validación
     $response->assertStatus(422);
+});
+
+it('retrieves the authenticated user data', function () {
+    // Crear un usuario
+    $user = User::factory()->create([
+        'language' => 'es', // Puedes establecer el idioma que desees
+    ]);
+
+    // Autenticar al usuario
+    Sanctum::actingAs($user, ['*']);
+
+    // Llamar al endpoint para obtener el usuario
+    $response = $this->getJson('/api/user');
+
+    // Verificar que la respuesta sea exitosa
+    $response->assertStatus(200);
+
+    // Verificar que la respuesta contenga los datos correctos del usuario
+    $response->assertJson([
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'language' => 'es', // Verifica que el idioma sea el correcto
+    ]);
+});
+
+it('retrieves the profile of the authenticated user with avatar from initials', function () {
+    // Crear un usuario
+    $user = User::factory()->create([
+        'name' => 'Prof. Cristal Heathcote II',
+        'email' => 'abraham58@example.com',
+        'language' => 'es',
+        'profile_photo_path' => null, // Asegúrate de que no hay avatar asignado
+    ]);
+
+    Sanctum::actingAs($user, ['*']);
+
+    // Llamada al endpoint /api/user
+    $response = $this->getJson('/api/user');
+
+    // Verificar que la respuesta sea exitosa
+    $response->assertStatus(200);
+
+    // Verificar que la respuesta contenga los datos correctos
+    $response->assertJsonFragment([
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'language' => 'es',
+    ]);
+
+    // Generar las iniciales del nombre
+    $nameParts = explode(' ', $user->name);
+    $initials = implode('+', array_map(fn($part) => strtoupper(substr($part, 0, 1)), $nameParts));
+
+    // Verificar que el URL del avatar se genera correctamente con las iniciales
+    $expectedAvatarUrl = 'https://ui-avatars.com/api/?name=' . $initials . '&color=7F9CF5&background=EBF4FF';
+    $this->assertEquals($expectedAvatarUrl, $response['profile_photo_url']);
 });
 

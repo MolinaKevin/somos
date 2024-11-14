@@ -5,12 +5,14 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use app\Models\User;
 use app\Models\Commerce;
+use app\Models\Purchase;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Purchase>
  */
 class PurchaseFactory extends Factory
 {
+    protected $model = Purchase::class;
     /**
      * Define the model's default state.
      *

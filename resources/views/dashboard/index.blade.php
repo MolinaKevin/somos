@@ -15,6 +15,7 @@
             <li><a href="{{ route('admin.purchases.index') }}">Administrar compras</a></li>
             <li><a href="{{ route('admin.pointsPurchases.index') }}">Administrar compras con puntos</a></li>
             <li><a href="{{ route('admin.fotos.index') }}">Administrar imágenes de fondo</a></li>
+            <li><a href="{{ route('admin.l10n.index') }}">Administrar traducciones</a></li>
         </ul>
     </div>
 @endsection

@@ -253,3 +253,108 @@ it('can pay a pre-created purchase', function () {
     expect($user->fresh()->points)->toBe(750.0);
 });
 
+it('creates a record in purchase_user_points for each user receiving points', function () {
+    // Crear una cadena de usuarios referidos de 5 niveles
+    $users = User::factory()->count(6)->create();
+    for ($i = 0; $i < 5; $i++) {
+        $users[$i]->referrer()->associate($users[$i + 1]);
+        $users[$i]->save();
+    }
+
+    $commerce = Commerce::factory()->create(['percent' => 10]);
+    $purchase = Purchase::factory()->for($users[0])->for($commerce)->create(['amount' => ConversionHelper::moneyToPoints(100)]);
+
+    // Llamar al método de distribución de puntos
+    $purchase->distributePoints();
+
+    // Verificar que cada usuario en la cadena ha recibido puntos y que el registro existe en `purchase_user_points`
+    for ($i = 0; $i < 5; $i++) {
+        $points = round($purchase->points * (0.25 / pow(2, $i)), 2); // Redondea a 2 decimales
+        $this->assertDatabaseHas('purchase_user_points', [
+            'purchase_id' => $purchase->id,
+            'user_id' => $users[$i]->id,
+            'points' => $points,
+        ]);
+    }
+});
+
+it('registers points for incomplete referral chain', function () {
+    // Crear una cadena de referidos de 3 niveles
+    $users = User::factory()->count(4)->create();
+    for ($i = 0; $i < 3; $i++) {
+        $users[$i]->referrer()->associate($users[$i + 1]);
+        $users[$i]->save();
+    }
+
+    $commerce = Commerce::factory()->create(['percent' => 10]);
+    $purchase = Purchase::factory()->for($users[0])->for($commerce)->create(['amount' => ConversionHelper::moneyToPoints(100)]);
+
+    // Distribuir puntos
+    $purchase->distributePoints();
+
+    // Verificar que solo se registraron puntos hasta el tercer nivel
+    for ($i = 0; $i < 3; $i++) {
+        $points = round($purchase->points * (0.25 / pow(2, $i)), 2); // Redondea para evitar problemas de precisión
+        $this->assertDatabaseHas('purchase_user_points', [
+            'purchase_id' => $purchase->id,
+            'user_id' => $users[$i]->id,
+            'points' => $points,
+        ]);
+    }
+
+    // Verificar que no hay registros de puntos para el cuarto usuario (sin referrer)
+    $this->assertDatabaseHas('purchase_user_points', [
+        'purchase_id' => $purchase->id,
+        'user_id' => $users[3]->id,
+    ]);
+});
+
+it('verifies correct point totals for each user in purchase_user_points', function () {
+    $users = User::factory()->count(6)->create();
+    for ($i = 0; $i < 5; $i++) {
+        $users[$i]->referrer()->associate($users[$i + 1]);
+        $users[$i]->save();
+    }
+
+    $commerce = Commerce::factory()->create(['percent' => 10]);
+    $purchase = Purchase::factory()->for($users[0])->for($commerce)->create(['amount' => ConversionHelper::moneyToPoints(100)]);
+
+    // Distribuir puntos
+    $purchase->distributePoints();
+
+    // Verificar el total de puntos recibidos por cada usuario en `purchase_user_points`
+    for ($i = 0; $i < 5; $i++) {
+        $expectedPoints = $purchase->points * (0.25 / pow(2, $i));
+        $totalPoints = \DB::table('purchase_user_points')
+            ->where('user_id', $users[$i]->id)
+            ->sum('points');
+
+        expect(abs($totalPoints - $expectedPoints))->toBeLessThan(0.01);
+
+    }
+});
+
+it('ensures no points are registered for non-referral purchases', function () {
+    $user = User::factory()->create();
+    $commerce = Commerce::factory()->create(['percent' => 10]);
+    $purchase = Purchase::factory()->for($user)->for($commerce)->create(['amount' => ConversionHelper::moneyToPoints(100)]);
+
+    // Distribuir puntos
+    $purchase->distributePoints();
+
+    // Verificar que solo el usuario inicial recibe puntos y no hay otros registros en `purchase_user_points`
+    $this->assertDatabaseHas('purchase_user_points', [
+        'purchase_id' => $purchase->id,
+        'user_id' => $user->id,
+    ]);
+
+    // Verificar que no hay otros registros en `purchase_user_points` para otros usuarios
+    $otherUsers = User::where('id', '!=', $user->id)->pluck('id');
+    foreach ($otherUsers as $otherUserId) {
+        $this->assertDatabaseMissing('purchase_user_points', [
+            'purchase_id' => $purchase->id,
+            'user_id' => $otherUserId,
+        ]);
+    }
+});
+

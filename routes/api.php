@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\PointController;
 use App\Http\Controllers\API\UserCommerceController;
 use App\Http\Controllers\API\UserCommercePurchaseController;
+use App\Http\Controllers\API\UserPurchaseController;
+use App\Http\Controllers\API\UserPointsPurchaseController;
 use App\Http\Controllers\API\UserCommerceCashoutController;
 use App\Http\Controllers\API\UserCommerceDonationController;
 use App\Http\Controllers\API\UserNroDonationController;
@@ -24,7 +26,7 @@ use App\Http\Controllers\Auth\RegisterController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
-|--------------------------------------------------------------------------
+|-----------------------------------------------------------------------
 |
 | Here is where you can register API routes for your application. These
 | routes are loaded by the RouteServiceProvider and all of them will
@@ -44,9 +46,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'show']); 
     Route::put('user', [UserController::class, 'update']); 
     Route::get('/user/data', [UserController::class, 'data']);
+    Route::get('/user/referral-points', [UserController::class, 'referralPurchasePoints']);
+    Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
     Route::apiResource('users', UsersController::class); 
     Route::apiResource('somos', SomosController::class)->parameters(['somos' => 'somos']);
     Route::apiResource('user/commerces', UserCommerceController::class);
+    Route::apiResource('user/purchases', UserPurchaseController::class);
+    Route::apiResource('user/point-purchases', UserPointsPurchaseController::class);
     Route::apiResource('user/nros', UserNroController::class);
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('/user/commerces/{commerce}/purchases', UserCommercePurchaseController::class);

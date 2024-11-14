@@ -30,7 +30,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 'email', 'password', 'points', 'pass', 'referrer_pass', 'language'
+        //'name', 'email', 'password', 'points', 'pass', 'referrer_pass', 'language'
+        'name', 'email', 'password', 'points','language'
     ];
 
     /**
@@ -60,7 +61,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $appends = [
-        'profile_photo_url',
+        'profile_photo_url', 
+        //'referrals'
     ];
 
 
@@ -144,6 +146,27 @@ class User extends Authenticatable
         return 0;
     }
 
+    public function getReferralPurchasePoints()
+    {
+        return \DB::table('purchase_user_points')
+            ->join('purchases', 'purchase_user_points.purchase_id', '=', 'purchases.id')
+            ->where('purchase_user_points.user_id', $this->id)
+            ->select('purchases.id as purchase_id', 'purchase_user_points.points', 'purchases.created_at')
+            ->orderBy('purchases.created_at', 'desc')
+            ->get();
+    }
+
+    public function getReferralPurchasePointsWithoutUser()
+    {
+        return \DB::table('purchase_user_points')
+            ->join('purchases', 'purchase_user_points.purchase_id', '=', 'purchases.id')
+            ->where('purchase_user_points.user_id', $this->id)
+            ->where('purchases.user_id', '!=', $this->id) // Excluir compras realizadas por el usuario mismo
+            ->select('purchases.id as purchase_id', 'purchase_user_points.points', 'purchases.created_at')
+            ->orderBy('purchases.created_at', 'desc')
+            ->get();
+    }
+
 
 
 	/**
@@ -169,5 +192,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Purchase::class);
     }
+
+    public function pointsPurchases()
+    {
+        return $this->hasMany(PointsPurchase::class);
+    }
+
+    public function referrals()
+    {
+        return $this->hasMany(User::class, 'referrer_pass', 'pass');
+    }
+
 
 }

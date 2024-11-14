@@ -143,3 +143,48 @@ it('ensures commerce has a custom avatar if uploaded', function () {
     $this->assertEquals($expectedAvatarUrl, $commerce->avatar_url);
 });
 
+/**
+ * Test para verificar que un usuario puede subir y asignar un nuevo avatar.
+ */
+it('allows a user to upload and assign a new avatar', function () {
+    // Simular un usuario autenticado
+    $user = User::factory()->create();
+    Sanctum::actingAs($user, ['*']);
+
+    // Simular un archivo de avatar
+    $newAvatar = UploadedFile::fake()->image('new_avatar.jpg');
+
+    // Subir la imagen
+    $response = $this->postJson('/api/user/upload-avatar', [
+        'avatar' => $newAvatar,
+    ]);
+
+    // Verificar que la respuesta es exitosa
+    $response->assertStatus(200);
+
+    // Capturar el nombre del archivo como lo guarda Laravel
+    $savedAvatarPath = "avatars/users/{$user->id}";
+
+    // Verificar que el avatar fue almacenado en el path correcto
+    Storage::disk('public')->assertExists($savedAvatarPath);
+
+    // Verificar que el avatar está asociado correctamente al usuario
+    $user->refresh();
+    $this->assertEquals($savedAvatarPath, $user->profile_photo_path);
+});
+
+/**
+ * Test para verificar que se utiliza un avatar por defecto si no se encuentra uno para el usuario.
+ */
+it('uses a default avatar if no avatar is found for user', function () {
+    $user = User::factory()->create(['profile_photo_path' => null]);
+
+    $nameParts = explode(' ', $user->name);
+    $initials = implode('+', array_map(fn($part) => strtoupper(substr($part, 0, 1)), $nameParts));
+
+    // Verificar que el URL del avatar se genera correctamente con las iniciales
+    $expectedAvatarUrl = 'https://ui-avatars.com/api/?name=' . $initials . '&color=7F9CF5&background=EBF4FF';
+    // Verificar que el avatar por defecto es asignado si no hay avatar
+    $this->assertEquals($expectedAvatarUrl, $user->profile_photo_url);
+});
+
