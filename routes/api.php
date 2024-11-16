@@ -20,6 +20,7 @@ use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\ImageUploadController;
 use App\Http\Controllers\API\AvatarUploadController;
+use App\Http\Controllers\API\L10nController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 
@@ -41,6 +42,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/commerces', [CommerceController::class, 'index']);
 Route::get('/nros', [NroController::class, 'index']);
+Route::get('/l10n/locales', [L10nController::class, 'availableLocales']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('user', [UserController::class, 'show']); 

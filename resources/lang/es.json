@@ -1,0 +1,255 @@
+{
+  "app": {
+    "title": "Mi Aplicación",
+    "information": "Información",
+    "language": "Idioma",
+    "selectLanguage": "Seleccionar idioma",
+    "save": "Guardar"
+  },
+  "navigation": {
+    "map": "Mapa",
+    "list": "Lista",
+    "profile": "Perfil",
+    "pointsTab": "Puntos",
+    "referral": "Referidos",
+    "logout": "Cerrar sesión"
+  },
+  "user": {
+    "profile": "Perfil de usuario",
+    "modifyProfile": "Modificar perfil",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "pass": "Somos Pass",
+    "referrer_pass": "Pass de referido",
+    "totalReferrals": "Referidos",
+    "totalPoints": "Puntos",
+    "firstLevelReferrals": "Primer Nivel",
+    "lowerLevelReferrals": "Niveles Inferiores",
+    "description": "Descripción"
+  },
+  "transaction": {
+    "generate": "Generar Transacción",
+    "viewPoints": "Ver Puntos",
+    "initiateTransaction": "Iniciar Transacción",
+    "waitingForDevice": "Esperando aceptación",
+    "nfcDisabled": "NFC deshabilitado",
+    "enableNFC": "Por favor, habilita NFC para continuar.",
+    "buy": "Comprar",
+    "viewTransactions": "Ver Transacciones",
+    "noTransactions": "No se encontraron transacciones.",
+    "purchase": "Compra",
+    "purchaseAt": "Compra en",
+    "pointPurchase": "Compra con puntos"
+  },
+  "common": {
+    "close": "Cerrar",
+    "ok": "Aceptar",
+    "cancel": "Cancelar",
+    "noDataAvailable": "No disponible",
+    "failedToLoadData": "Error al cargar datos",
+    "retry": "Reintentar",
+    "unknown": "Desconocido"
+  },
+  "filter": {
+    "options": "Opciones de Filtro",
+    "category": "Filtrar por categoría",
+    "location": "Filtrar por ubicación",
+    "openNow": "Solo mostrar abiertos",
+    "rating": "Filtrar por puntuación",
+    "rating.all": "Todas las puntuaciones",
+    "location.all": "Todas las ubicaciones",
+    "location.kilometers": "km"
+  },
+  "entities": {
+    "phone": "Teléfono",
+    "comercios": "Comercios",
+    "instituciones": "Instituciones",
+    "address": "Dirección",
+    "noAddress": "Dirección no disponible",
+    "noPhone": "Teléfono no disponible",
+    "noEmail": "Correo no disponible",
+    "noCity": "Ciudad no disponible",
+    "noDescription": "Descripción no disponible",
+    "search": "Buscar...",
+    "open": "Abierto",
+    "closed": "Cerrado",
+    "city": "Ciudad",
+    "gallery": "Galería"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "fullName": "Nombre Completo",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "skipLogin": "Omitir Inicio de Sesión",
+    "enterCredentials": "Por favor ingrese sus credenciales",
+    "enterAllFields": "Por favor complete todos los campos y asegúrese de que las contraseñas coincidan",
+    "restrictedAccessMessage": "Acceso restringido",
+    "logout": "Logout",
+    "email": "Email",
+    "authError": "Error de autenticación",
+    "tokenNotFound": "No se pudo obtener el token de autenticación.",
+    "authTokenDeleted": "Token de autenticación eliminado",
+    "loginFailed": "No se pudo iniciar sesión.",
+    "tryingAutoLogin": "Intentando auto-login...",
+    "autoLoginSuccess": "Auto-login exitoso. Token encontrado.",
+    "noTokenFound": "No se encontró token. Redirigiendo a Login.",
+    "errorCreatingBusiness": "Hubo un problema al crear el comercio."
+  },
+  "referrals": {
+    "view": "Ver Referidos",
+    "hierarchy": "Jerarquía de Referidos",
+    "firstLevel": "Primer Nivel",
+    "secondLevel": "Segundo Nivel",
+    "thirdLevel": "Tercer Nivel",
+    "fourthLevel": "Cuarto Nivel",
+    "fifthLevel": "Quinto Nivel",
+    "sixthLevel": "Sexto Nivel",
+    "seventhLevel": "Séptimo Nivel"
+  },
+  "tabs": {
+    "tab1": "Tab 1",
+    "tab2": "Tab 2",
+    "tab3": "Tab 3"
+  },
+  "transactions": {
+    "nfcTransaction": "Transacción NFC",
+    "qrTransaction": "Transacción por QR",
+    "waitingForDevice": "Esperando dispositivo...",
+    "notAvailable": "Actualmente no está disponible.",
+    "institutionNfcTransaction": "Transacción Institution NFC",
+    "qrInstitutionTransaction": "Transacción Insti por QR",
+    "nfcInstitutionTransaction": "Transacción Insti NFC"
+  },
+  "points": {
+    "currentPoints": "Puntos actuales",
+    "amount": "Monto",
+    "points": "Puntos",
+    "pass": "Pass"
+  },
+  "movements": {
+    "commerceMovements": "Movimientos del Comercio",
+    "institutionMovements": "Movimientos de la Institución",
+    "donationTo": "Donación a",
+    "donationFrom": "Donación de",
+    "contributionTo": "Contribución a",
+    "donationsReceived": "Donaciones Recibidas",
+    "contributionsMade": "Contribuciones Realizadas",
+    "all": "Todos",
+    "purchases": "Compras",
+    "donations": "Donaciones",
+    "closures": "Closures",
+    "noMovements": "No hay movimientos disponibles",
+    "movementsLoadError": "Error al cargar los movimientos"
+  },
+  "errors": {
+    "error": "Error",
+    "authTokenError": "No se pudo obtener el token de autenticación",
+    "movementsLoadError": "Error al cargar los movimientos",
+    "invalidDate": "Fecha inválida",
+    "noDescription": "Sin descripción",
+    "problem": "Hubo un problema",
+    "imageUploadError": "Error al cargar la imagen desde URL",
+    "unexpectedStructureComm": "Estructura inesperada en la respuesta (comm):",
+    "unexpectedStructureNro": "Estructura inesperada en la respuesta (nro):",
+    "fetchEntitiesError": "Error al obtener entidades del usuario:"
+  },
+  "time": {
+    "date": "Fecha",
+    "withdrawalDate": "Fecha de retiro",
+    "openingTime": "Apertura",
+    "closingTime": "Cierre",
+    "selectOpeningTime": "Selecciona hora de apertura",
+    "selectClosingTime": "Selecciona hora de cierre",
+    "choose": "Elegir",
+    "schedule": "Horario"
+  },
+  "forms": {
+    "save": "Guardar",
+    "saveChanges": "Guardar Cambios",
+    "edit": "Editar",
+    "deactivate": "Desactivar",
+    "activate": "Activar",
+    "delete": "Eliminar",
+    "deactivating": "desactivar",
+    "activating": "activar",
+    "deleting": "Eliminando",
+    "accept": "Aceptar",
+    "confirm": "Confirmar"
+  },
+  "entity": {
+    "myEntities": "Mis Entidades",
+    "menu": "Menú",
+    "businesses": "Comercios",
+    "institutions": "Instituciones",
+    "businessAndInstitutions": "Comercios e Instituciones",
+    "notAccepted": "No aceptado",
+    "theBusiness": "El comercio",
+    "isNotAccepted": "aún no está aceptado, por favor espere."
+  },
+  "business": {
+    "createNewBusiness": "Crear nuevo comercio",
+    "editCommerce": "Editar Comercio",
+    "commerceUpdated": "Comercio actualizado",
+    "commerceUpdatedSuccessfully": "El comercio ha sido actualizado exitosamente",
+    "businessCreated": "Comercio creado",
+    "businessCreatedSuccessfully": "El comercio ha sido creado exitosamente.",
+    "saveBusiness": "Guardar Comercio",
+    "deactivateCommerce": "Desactivar Comercio",
+    "activateCommerce": "Activar Comercio"
+  },
+  "institution": {
+    "createNewInstitution": "Crear nueva institución",
+    "editInstitution": "Editar Institución",
+    "institutionUpdated": "Institución actualizada",
+    "institutionUpdatedSuccessfully": "La institución ha sido actualizada exitosamente",
+    "saveInstitution": "Guardar Institución",
+    "deactivateInstitution": "Desactivar Institución",
+    "activateInstitution": "Activar Institución",
+    "institutionCreated": "Institución creada",
+    "somos": "Somos",
+    "pleaseSelectSomos": "Por favor selecciona una opción de Somos"
+  },
+  "entity_fields": {
+    "name": "Nombre",
+    "address": "Dirección",
+    "city": "Ciudad",
+    "plz": "PLZ",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "percent": "Porcentaje",
+    "phone": "Teléfono",
+    "avatarUrl": "Avatar (URL)",
+    "backgroundImageUrl": "Imagen de Fondo (URL)"
+  },
+  "placeholders": {
+    "pleaseEnterName": "Por favor ingresa un nombre",
+    "pleaseEnterAddress": "Por favor ingresa una dirección",
+    "pleaseEnterCity": "Por favor ingresa una ciudad",
+    "pleaseEnterPLZ": "Por favor ingresa el código postal (PLZ)",
+    "pleaseEnterLatitude": "Por favor ingresa la latitud",
+    "pleaseEnterLongitude": "Por favor ingresa la longitud",
+    "pleaseEnterAvatarUrl": "Por favor ingresa la URL del avatar",
+    "pleaseEnterBackgroundImageUrl": "Por favor ingresa la URL de la imagen de fondo",
+    "pleaseEnterPercent": "Por favor ingresa un porcentaje"
+  },
+  "avatar": {
+    "changeAvatar": "Cambiar Avatar",
+    "uploadFromGallery": "Subir desde la galería",
+    "enterAvatarUrl": "Ingresar URL del Avatar",
+    "enterUrl": "Ingresar URL",
+    "takePhoto": "Tomar una foto"
+  },
+  "backgroundImage": {
+    "enterBackgroundImageUrl": "Ingresar URL de la Imagen de Fondo",
+    "addBackgroundImage": "Agregar Imagen de Fondo",
+    "noImagesAvailable": "No hay imágenes disponibles"
+  },
+  "map": {
+    "selectLocation": "Seleccionar ubicación",
+    "searchPlace": "Buscar lugar..."
+  }
+}
+

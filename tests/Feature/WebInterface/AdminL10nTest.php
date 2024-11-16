@@ -3,8 +3,14 @@
 use App\Models\User;
 use App\Models\L10n;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    Storage::fake('lang');
+});
 
 // Test: Ver listado de traducciones
 it('can see the translations list', function () {
@@ -201,7 +207,6 @@ it('validates translation data', function () {
     $response->assertJsonValidationErrors(['locale', 'group', 'key', 'value']);
 });
 
-use Illuminate\Support\Facades\File;
 
 // Test: Verificar que se crea el archivo JSON al crear una traducción
 it('creates a JSON file for the specified locale', function () {
@@ -231,8 +236,6 @@ it('creates a JSON file for the specified locale', function () {
     $translations = json_decode(File::get($filePath), true);
     expect($translations['auth']['login'])->toBe('Acceder');
 
-    // Limpiar después del test
-    File::delete($filePath);
 });
 
 // Test: Verificar que se actualiza el archivo JSON al actualizar una traducción
@@ -263,8 +266,6 @@ it('updates the JSON file when a translation is updated', function () {
     $translations = json_decode(File::get($filePath), true);
     expect($translations['auth']['login'])->toBe('Iniciar sesión');
 
-    // Limpiar después del test
-    File::delete($filePath);
 });
 
 // Test: Verificar que no se permite duplicar traducciones y el archivo JSON sigue igual
@@ -296,7 +297,5 @@ it('does not allow duplicate translations and does not alter the JSON file', fun
     $translations = json_decode(File::get($filePath), true);
     expect($translations['auth']['login'])->toBe('Acceder');
 
-    // Limpiar después del test
-    File::delete($filePath);
 });
 

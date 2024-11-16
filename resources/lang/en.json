@@ -1,0 +1,256 @@
+{
+  "app": {
+    "title": "My Application",
+    "information": "Information",
+    "language": "Language",
+    "selectLanguage": "Select Language",
+    "save": "Save"
+  },
+  "navigation": {
+    "map": "Map",
+    "list": "List",
+    "profile": "Profile",
+    "pointsTab": "Points",
+    "referral": "Referrals",
+    "logout": "Logout"
+  },
+  "user": {
+    "profile": "User Profile",
+    "modifyProfile": "Edit Profile",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "pass": "Somos Pass",
+    "referrer_pass": "Referral Pass",
+    "totalReferrals": "Total Referrals",
+    "totalPoints": "Total Points",
+    "firstLevelReferrals": "First Level",
+    "lowerLevelReferrals": "Lower Levels",
+    "description": "Description"
+  },
+  "transaction": {
+    "generate": "Generate Transaction",
+    "viewPoints": "View Points",
+    "initiateTransaction": "Initiate Transaction",
+    "waitingForDevice": "Waiting for Acceptance",
+    "nfcDisabled": "NFC Disabled",
+    "enableNFC": "Please enable NFC to continue.",
+    "buy": "Buy",
+    "viewTransactions": "View Transactions",
+    "noTransactions": "No transactions found.",
+    "purchase": "Purchase",
+    "pointPurchase": "Point Purchase"
+  },
+  "common": {
+    "close": "Close",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "noDataAvailable": "Not Available",
+    "failedToLoadData": "Failed to load data",
+    "retry": "Retry",
+    "unknown": "Unknown"
+  },
+  "filter": {
+    "options": "Filter Options",
+    "category": "Filter by Category",
+    "location": "Filter by Location",
+    "openNow": "Show Only Open",
+    "rating": "Filter by Rating",
+    "rating.all": "All Ratings",
+    "location.all": "All locations",
+    "location.kilometers": "km"
+  },
+  "entities": {
+    "comercios": "Shops",
+    "instituciones": "Institutions",
+    "address": "Address",
+    "noAddress": "Address not available",
+    "noPhone": "Phone not available",
+    "noEmail": "Email not available",
+    "noCity": "City not available",
+    "noDescription": "Description not available",
+    "search": "Search...",
+    "open": "Open",
+    "closed": "Closed",
+    "city": "City",
+    "gallery": "Gallery"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "fullName": "Full Name",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "skipLogin": "Skip Login",
+    "enterCredentials": "Please enter your credentials",
+    "enterAllFields": "Please fill in all fields and ensure passwords match",
+    "restrictedAccessMessage": "Restricted access",
+    "logout": "Logout",
+    "email": "Email",
+    "authError": "Authentication error",
+    "tokenNotFound": "Authentication token could not be obtained.",
+    "authTokenDeleted": "Authentication token deleted",
+    "loginFailed": "Failed to login.",
+    "tryingAutoLogin": "Trying auto-login...",
+    "autoLoginSuccess": "Auto-login successful. Token found.",
+    "noTokenFound": "No token found. Redirecting to Login.",
+    "errorCreatingBusiness": "There was a problem creating the business."
+  },
+  "referrals": {
+    "view": "View Referrals",
+    "hierarchy": "Referral Hierarchy",
+    "firstLevel": "First Level",
+    "secondLevel": "Second Level",
+    "thirdLevel": "Third Level",
+    "fourthLevel": "Fourth Level",
+    "fifthLevel": "Fifth Level",
+    "sixthLevel": "Sixth Level",
+    "seventhLevel": "Seventh Level"
+  },
+  "language": {
+    "selectLanguage": "Choose language"
+  },
+  "tabs": {
+    "tab1": "Tab 1",
+    "tab2": "Tab 2",
+    "tab3": "Tab 3"
+  },
+  "transactions": {
+    "nfcTransaction": "NFC Transaction",
+    "qrTransaction": "QR Transaction",
+    "waitingForDevice": "Waiting for device...",
+    "notAvailable": "Currently unavailable.",
+    "institutionNfcTransaction": "Institution NFC Transaction",
+    "qrInstitutionTransaction": "Institution QR Transaction",
+    "nfcInstitutionTransaction": "Institution NFC Transaction"
+  },
+  "points": {
+    "currentPoints": "Current Points",
+    "amount": "Amount",
+    "points": "Points",
+    "pass": "Pass"
+  },
+  "movements": {
+    "commerceMovements": "Business Movements",
+    "institutionMovements": "Institution Movements",
+    "donationTo": "Donation to",
+    "donationFrom": "Donation from",
+    "contributionTo": "Contribution to",
+    "donationsReceived": "Donations Received",
+    "contributionsMade": "Contributions Made",
+    "all": "All",
+    "purchases": "Purchases",
+    "donations": "Donations",
+    "closures": "Closures",
+    "noMovements": "No movements available",
+    "movementsLoadError": "Error loading movements"
+  },
+  "errors": {
+    "error": "Error",
+    "authTokenError": "Could not obtain the authentication token",
+    "movementsLoadError": "Error loading movements",
+    "invalidDate": "Invalid date",
+    "noDescription": "No description",
+    "problem": "There was a problem",
+    "imageUploadError": "Error uploading the image from URL",
+    "unexpectedStructureComm": "Unexpected response structure (comm):",
+    "unexpectedStructureNro": "Unexpected response structure (nro):",
+    "fetchEntitiesError": "Error fetching user entities:"
+  },
+  "time": {
+    "date": "Date",
+    "withdrawalDate": "Withdrawal date",
+    "openingTime": "Opening time",
+    "closingTime": "Closing time",
+    "selectOpeningTime": "Select opening time",
+    "selectClosingTime": "Select closing time",
+    "choose": "Choose",
+    "schedule": "Schedule"
+  },
+  "forms": {
+    "save": "Save",
+    "saveChanges": "Save Changes",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "delete": "Delete",
+    "deactivating": "deactivating",
+    "activating": "activating",
+    "deleting": "Deleting",
+    "accept": "Accept",
+    "confirm": "Confirm"
+  },
+  "entity": {
+    "myEntities": "My Entities",
+    "menu": "Menu",
+    "businesses": "Businesses",
+    "institutions": "Institutions",
+    "businessAndInstitutions": "Businesses and Institutions",
+    "notAccepted": "Not accepted",
+    "theBusiness": "The business",
+    "isNotAccepted": "is not yet accepted, please wait."
+  },
+  "business": {
+    "createNewBusiness": "Create new business",
+    "editCommerce": "Edit Business",
+    "commerceUpdated": "Business updated",
+    "commerceUpdatedSuccessfully": "The business has been successfully updated",
+    "businessCreated": "Business created",
+    "businessCreatedSuccessfully": "The business has been successfully created.",
+    "saveBusiness": "Save Business",
+    "deactivateCommerce": "Deactivate Business",
+    "activateCommerce": "Activate Business"
+  },
+  "institution": {
+    "createNewInstitution": "Create new institution",
+    "editInstitution": "Edit Institution",
+    "institutionUpdated": "Institution updated",
+    "institutionUpdatedSuccessfully": "The institution has been successfully updated",
+    "saveInstitution": "Save Institution",
+    "deactivateInstitution": "Deactivate Institution",
+    "activateInstitution": "Activate Institution",
+    "institutionCreated": "Institution created",
+    "somos": "Somos",
+    "pleaseSelectSomos": "Please select a Somos option"
+  },
+  "entity_fields": {
+    "name": "Name",
+    "address": "Address",
+    "city": "City",
+    "plz": "PLZ",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "percent": "Percent",
+    "phone": "Phone",
+    "avatarUrl": "Avatar (URL)",
+    "backgroundImageUrl": "Background Image (URL)"
+  },
+  "placeholders": {
+    "pleaseEnterName": "Please enter a name",
+    "pleaseEnterAddress": "Please enter an address",
+    "pleaseEnterCity": "Please enter a city",
+    "pleaseEnterPLZ": "Please enter the postal code (PLZ)",
+    "pleaseEnterLatitude": "Please enter the latitude",
+    "pleaseEnterLongitude": "Please enter the longitude",
+    "pleaseEnterAvatarUrl": "Please enter the avatar URL",
+    "pleaseEnterBackgroundImageUrl": "Please enter the background image URL",
+    "pleaseEnterPercent": "Please enter a percentage"
+  },
+  "avatar": {
+    "changeAvatar": "Change Avatar",
+    "uploadFromGallery": "Upload from gallery",
+    "enterAvatarUrl": "Enter Avatar URL",
+    "enterUrl": "Enter URL",
+    "takePhoto": "Take a photo"
+  },
+  "backgroundImage": {
+    "enterBackgroundImageUrl": "Enter Background Image URL",
+    "addBackgroundImage": "Add Background Image",
+    "noImagesAvailable": "No images available"
+  },
+  "map": {
+    "selectLocation": "Select location",
+    "searchPlace": "Search place..."
+  }
+}
+
