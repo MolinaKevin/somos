@@ -17,7 +17,7 @@ class L10nController extends Controller
         $translations = L10n::all();
 
         // Retornar la vista con las traducciones
-        return view('admin.l10n.index', compact('translations'));
+        return view('admin.l10ns.index', compact('translations'));
     }
 
     /**
@@ -26,7 +26,7 @@ class L10nController extends Controller
     public function create()
     {
         // Retornar la vista para crear una nueva traducción
-        return view('admin.l10n.create');
+        return view('admin.l10ns.create');
     }
 
     /**
@@ -56,7 +56,7 @@ class L10nController extends Controller
         // Crear la nueva traducción
         L10n::create($validatedData);
 
-        return redirect()->route('admin.l10n.index')->with('status', 'Traducción creada exitosamente');
+        return redirect()->route('admin.l10ns.index')->with('status', 'Traducción creada exitosamente');
     }
 
     /**
@@ -68,7 +68,7 @@ class L10nController extends Controller
         $translation = L10n::findOrFail($id);
 
         // Retornar la vista con los detalles de la traducción
-        return view('admin.l10n.show', compact('translation'));
+        return view('admin.l10ns.show', compact('translation'));
     }
 
     /**
@@ -79,7 +79,7 @@ class L10nController extends Controller
         // Buscar la traducción para editar
         $translation = L10n::findOrFail($id);
 
-        return view('admin.l10n.edit', compact('translation'));
+        return view('admin.l10ns.edit', compact('translation'));
     }
 
     /**
@@ -102,7 +102,7 @@ class L10nController extends Controller
         $translation->update($validatedData);
 
         // Redirigir con un mensaje de éxito
-        return redirect()->route('admin.l10n.index')->with('status', 'Traducción actualizada exitosamente');
+        return redirect()->route('admin.l10ns.index')->with('status', 'Traducción actualizada exitosamente');
     }
 
     /**
@@ -113,7 +113,7 @@ class L10nController extends Controller
         // Eliminar la traducción
         $l10n->delete();
 
-        return redirect('/admin/l10n')->with('status', 'Traducción eliminada exitosamente');
+        return redirect('/admin/l10ns')->with('status', 'Traducción eliminada exitosamente');
     }
 }
 

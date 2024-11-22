@@ -4,7 +4,7 @@
 @section('content')
     <h1>Editar Traducción</h1>
 
-    <form action="{{ route('admin.l10n.update', $translation->id) }}" method="POST">
+    <form action="{{ route('admin.l10ns.update', $translation->id) }}" method="POST">
         @csrf
         @method('PUT')
 

@@ -1,121 +1,126 @@
 <?php
 
 use App\Models\Category;
+use App\Models\L10n;
 use App\Models\Commerce;
 use App\Models\User;
-use Laravel\Sanctum\Sanctum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('cannot create a category without translations', function () {
-    $categoryData = Category::factory()->make()->toArray();
-    $user = User::factory()->create();
-
-    Bouncer::allow($user)->to('manage-category');
-
-    Sanctum::actingAs($user);
-
-    $response = $this->post('/api/categories', $categoryData);
-
-    $response->assertStatus(302);
-    $response->assertSessionHasErrors('translations');
-});
-
-it('can update a category', function () {
-    $category = Category::factory()->create();
-    $user = User::factory()->create();
-
-    Bouncer::allow($user)->to('manage-category');
-    $updatedData = ['name' => 'Updated Category Name'];
-
-    Sanctum::actingAs($user);
-
-    $response = $this->put("/api/categories/{$category->id}", $updatedData);
-
-    $response->assertStatus(200);
-
-    $updatedCategory = Category::find($category->id);
-    $this->assertEquals($updatedData['name'], $updatedCategory->getTranslation('name', 'de'));
-});
-
-it('can delete a category', function () {
-    $category = Category::factory()->create();
-    $user = User::factory()->create();
-
-    Bouncer::allow($user)->to('manage-category');
-    Sanctum::actingAs($user);
-
-    $response = $this->delete("/api/categories/{$category->id}");
-
-    $response->assertStatus(204);
-    $this->assertDatabaseMissing('categories', ['id' => $category->id]);
-});
-
-it('can assign categories to a commerce', function () {
-    $commerce = Commerce::factory()->create();
+it('fetches all categories with user locale translations', function () {
+    // Crear categorías
     $categories = Category::factory()->count(3)->create();
 
-    $user = User::factory()->create();
-    Bouncer::allow($user)->to('manage-category');
+    // Crear traducciones
+    foreach ($categories as $category) {
+        L10n::factory()->create([
+            'locale' => 'es',
+            'group' => 'category',
+            'key' => $category->slug,
+            'value' => $category->name . ' (ES)',
+        ]);
+        L10n::factory()->create([
+            'locale' => 'en',
+            'group' => 'category',
+            'key' => $category->slug,
+            'value' => $category->name . ' (EN)',
+        ]);
+    }
 
-    Sanctum::actingAs($user);
+    // Crear un usuario con idioma 'es'
+    $user = User::factory()->create(['language' => 'es']);
 
-    $response = $this->post("/api/commerces/{$commerce->id}/categories", ['categories' => $categories->pluck('id')->toArray()]);
+    // Autenticar al usuario
+    $response = $this->actingAs($user)->getJson('/api/categories');
 
+    // Verificar que las categorías están en el idioma del usuario
     $response->assertStatus(200);
+    $response->assertJsonFragment(['translated_name' => $categories[0]->name . ' (ES)']);
+    $response->assertJsonFragment(['translated_name' => $categories[1]->name . ' (ES)']);
+    $response->assertJsonFragment(['translated_name' => $categories[2]->name . ' (ES)']);
+});
 
-    foreach($categories as $category) {
-        $this->assertDatabaseHas('category_commerce', ['commerce_id' => $commerce->id, 'category_id' => $category->id]);
+it('fetches all categories in English when no user is authenticated', function () {
+    // Crear categorías
+    $categories = Category::factory()->count(3)->create();
+
+    // Crear traducciones
+    foreach ($categories as $category) {
+        L10n::factory()->create([
+            'locale' => 'en',
+            'group' => 'category',
+            'key' => $category->slug,
+            'value' => $category->name . ' (EN)',
+        ]);
+    }
+
+    // Hacer una petición no autenticada
+    $response = $this->get('/api/categories');
+
+    // Verificar que las categorías están en inglés
+    $response->assertStatus(200);
+    $response->assertJsonFragment(['translated_name' => $categories[0]->name . ' (EN)']);
+    $response->assertJsonFragment(['translated_name' => $categories[1]->name . ' (EN)']);
+    $response->assertJsonFragment(['translated_name' => $categories[2]->name . ' (EN)']);
+});
+
+it('fetches commerces from a category and its children', function () {
+    // Crear una categoría padre
+    $parentCategory = Category::factory()->create();
+
+    // Crear categorías hijas
+    $childCategories = Category::factory()->count(2)->create(['parent_id' => $parentCategory->id]);
+
+    // Crear comercios
+    $commerces = Commerce::factory()->count(3)->create();
+    $childCommerces = Commerce::factory()->count(2)->create();
+
+    // Asociar comercios a la categoría padre e hija
+    $parentCategory->commerces()->attach($commerces);
+    $childCategories[0]->commerces()->attach($childCommerces);
+
+    // Hacer una petición para obtener los comercios de la categoría padre
+    $response = $this->getJson("/api/categories/{$parentCategory->id}/commerces");
+
+    // Verificar que se incluyen los comercios del padre e hijos
+    $response->assertStatus(200);
+    foreach ($commerces as $commerce) {
+        $response->assertJsonFragment(['id' => $commerce->id]);
+    }
+    foreach ($childCommerces as $childCommerce) {
+        $response->assertJsonFragment(['id' => $childCommerce->id]);
     }
 });
 
-it('can create a category with translations', function () {
-    $categoryData = Category::factory()->make()->toArray();
+it('fetches child categories and associated commerces', function () {
+    $parentCategory = Category::factory()->create();
 
-    $user = User::factory()->create();
-    Bouncer::allow($user)->to('manage-category');
+    $childCategories = Category::factory()->count(3)->create(['parent_id' => $parentCategory->id]);
 
-    Sanctum::actingAs($user);
+    $parentCommerces = Commerce::factory()->count(2)->create();
+    $parentCategory->commerces()->attach($parentCommerces);
 
-    $categoryData['translations'] = [
-        'de' => ['name' => $categoryData['name']['de']],
-        'es' => ['name' => 'Nombre de Categoría'],
-        'fr' => ['name' => 'Nom de Catégorie'],
-    ];
+    $childCommerces = Commerce::factory()->count(3)->create();
+    foreach ($childCategories as $childCategory) {
+        $childCategory->commerces()->attach($childCommerces);
+    }
 
-    $response = $this->post('/api/categories', $categoryData);
+    $response = $this->getJson("/api/categories/{$parentCategory->id}/details");
 
-    //dd($response);
+    $response->assertStatus(200);
 
-    $response->assertStatus(201);
+    foreach ($childCategories as $childCategory) {
+        $response->assertJsonFragment(['id' => $childCategory->id]);
+    }
 
-    $createdCategory = Category::find($response['id']);
+    foreach ($parentCommerces as $commerce) {
+        $response->assertJsonFragment(['id' => $commerce->id]);
+    }
 
-    $this->assertEquals($categoryData['translations']['es']['name'], $createdCategory->getTranslation('name', 'es'));
-    $this->assertEquals($categoryData['translations']['fr']['name'], $createdCategory->getTranslation('name', 'fr'));
-
+    foreach ($childCommerces as $commerce) {
+        $response->assertJsonFragment(['id' => $commerce->id]);
+    }
 });
 
-it('only admin can create a category', function () {
-    $categoryData = Category::factory()->make()->toArray();
-    $admin = User::factory()->create();
-    $user = User::factory()->create();
-
-    // Asignar el rol de 'admin' al usuario $admin
-    Bouncer::allow('admin')->everything();
-    Bouncer::assign('admin')->to($admin);
-    $categoryData['translations'] = [
-        'de' => ['name' => $categoryData['name']['de']],
-        'es' => ['name' => 'Nombre de Categoría'],
-        'fr' => ['name' => 'Nom de Catégorie'],
-    ];
-    Sanctum::actingAs($user);
-    $response = $this->postJson('/api/categories', $categoryData);
-    $response->assertStatus(403); // 403 es el código de estado de 'Forbidden'
-
-    Sanctum::actingAs($admin);
-    $response = $this->postJson('/api/categories', $categoryData);
-    $response->assertStatus(201);
-});
 

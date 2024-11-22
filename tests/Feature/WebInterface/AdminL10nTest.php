@@ -27,7 +27,7 @@ it('can see the translations list', function () {
     $this->actingAs($admin);
 
     // Acceder a la página de lista de traducciones
-    $response = $this->get('/admin/l10n');
+    $response = $this->get('/admin/l10ns');
 
     // Verificar que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -56,7 +56,7 @@ it('can view a translation detail', function () {
     $this->actingAs($admin);
 
     // Acceder a la página de detalle de la traducción
-    $response = $this->get("/admin/l10n/{$translation->id}");
+    $response = $this->get("/admin/l10ns/{$translation->id}");
 
     // Verificar que la respuesta sea exitosa
     $response->assertStatus(200);
@@ -83,11 +83,11 @@ it('can create a translation', function () {
     ];
 
     // Enviar solicitud para crear una nueva traducción
-    $response = $this->post('/admin/l10n', $translationData);
+    $response = $this->post('/admin/l10ns', $translationData);
 
     // Verificar que la respuesta sea un redirect a la lista de traducciones
     $response->assertStatus(302);
-    $response->assertRedirect('/admin/l10n');
+    $response->assertRedirect('/admin/l10ns');
 
     // Verificar que la traducción fue creada en la base de datos
     $this->assertDatabaseHas('l10ns', [
@@ -122,11 +122,11 @@ it('can update a translation', function () {
     ];
 
     // Enviar solicitud para actualizar la traducción
-    $response = $this->put("/admin/l10n/{$translation->id}", $updatedData);
+    $response = $this->put("/admin/l10ns/{$translation->id}", $updatedData);
 
     // Verificar que la respuesta sea un redirect a la lista de traducciones
     $response->assertStatus(302);
-    $response->assertRedirect('/admin/l10n');
+    $response->assertRedirect('/admin/l10ns');
 
     // Verificar que los datos fueron actualizados en la base de datos
     $this->assertDatabaseHas('l10ns', [
@@ -151,10 +151,10 @@ it('prevents creating duplicate translations for the same key and group', functi
     $this->actingAs($admin);
 
     // Intentar crear la traducción duplicada
-    $response = $this->postJson('/admin/l10n', $translationData);
+    $response = $this->postJson('/admin/l10ns', $translationData);
 
     $response->assertStatus(302);
-    $response = $this->postJson('/admin/l10n', $translationData);
+    $response = $this->postJson('/admin/l10ns', $translationData);
 
     // Verificar que se recibe un error de duplicado
     $response->assertStatus(422);
@@ -177,11 +177,11 @@ it('can delete a translation', function () {
     ]);
 
     // Actuar como el usuario autenticado (por ejemplo, un administrador)
-    $response = $this->actingAs($adminUser)->delete("/admin/l10n/{$translation->id}");
+    $response = $this->actingAs($adminUser)->delete("/admin/l10ns/{$translation->id}");
 
     // Verificar que la respuesta sea un redirect a la lista de traducciones
     $response->assertStatus(302);
-    $response->assertRedirect('/admin/l10n');
+    $response->assertRedirect('/admin/l10ns');
 
     // Verificar que la traducción fue eliminada de la base de datos
     $this->assertDatabaseMissing('l10ns', [
@@ -198,7 +198,7 @@ it('validates translation data', function () {
     $this->actingAs($adminUser);
 
     // Intentar crear una traducción sin datos válidos usando una solicitud JSON
-    $response = $this->postJson('/admin/l10n', []);
+    $response = $this->postJson('/admin/l10ns', []);
 
     // Verificar que la respuesta sea un error 422 (Unprocessable Entity)
     $response->assertStatus(422);
@@ -223,7 +223,7 @@ it('creates a JSON file for the specified locale', function () {
     ];
 
     // Enviar la solicitud de creación
-    $response = $this->post('/admin/l10n', $translationData);
+    $response = $this->post('/admin/l10ns', $translationData);
 
     // Verificar que se redirige correctamente
     $response->assertStatus(302);
@@ -259,7 +259,7 @@ it('updates the JSON file when a translation is updated', function () {
         'value' => 'Iniciar sesión',
     ];
 
-    $this->put("/admin/l10n/{$translation->id}", $updatedData);
+    $this->put("/admin/l10ns/{$translation->id}", $updatedData);
 
     // Verificar que el archivo es.json se haya actualizado
     $filePath = public_path("lang/es.json");
@@ -289,7 +289,7 @@ it('does not allow duplicate translations and does not alter the JSON file', fun
         'value' => 'Ingresar',
     ];
 
-    $response = $this->postJson('/admin/l10n', $duplicateData);
+    $response = $this->postJson('/admin/l10ns', $duplicateData);
     $response->assertStatus(422);
 
     // Verificar que el contenido del archivo JSON no ha cambiado

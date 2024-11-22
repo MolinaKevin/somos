@@ -23,8 +23,8 @@
         </tr>
     </table>
 
-    <a href="{{ route('admin.l10n.edit', $translation->id) }}">Editar</a>
-    <form action="{{ route('admin.l10n.destroy', $translation->id) }}" method="POST" style="display:inline;">
+    <a href="{{ route('admin.l10ns.edit', $translation->id) }}">Editar</a>
+    <form action="{{ route('admin.l10ns.destroy', $translation->id) }}" method="POST" style="display:inline;">
         @csrf
         @method('DELETE')
         <button type="submit">Eliminar</button>

@@ -41,6 +41,9 @@ Route::post('points/give', [PointController::class,'give']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/commerces', [CommerceController::class, 'index']);
+Route::apiResource('categories', CategoryController::class)->only(['index']);
+Route::get('/categories/{category}/details', [CategoryController::class, 'details']);
+Route::get('/categories/{category}/commerces', [CategoryController::class, 'commerces']);
 Route::get('/nros', [NroController::class, 'index']);
 Route::get('/l10n/locales', [L10nController::class, 'availableLocales']);
 
@@ -56,7 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('user/purchases', UserPurchaseController::class);
     Route::apiResource('user/point-purchases', UserPointsPurchaseController::class);
     Route::apiResource('user/nros', UserNroController::class);
-    Route::apiResource('categories', CategoryController::class);
+    Route::apiResource('categories', CategoryController::class)->except(['index']);
     Route::apiResource('/user/commerces/{commerce}/purchases', UserCommercePurchaseController::class);
     Route::apiResource('/user/commerces/{commerce}/donations', UserCommerceDonationController::class);
     Route::apiResource('/user/commerces/{commerce}/cashouts', UserCommerceCashoutController::class);

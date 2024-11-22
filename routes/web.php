@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\{
     PointsPurchaseController as AdminPointsPurchaseController,
     FotoController,
     L10nController,
+    CategoryController,
 };
 
 
@@ -59,7 +60,10 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('purchases', AdminPurchaseController::class);
         Route::resource('pointsPurchases', AdminPointsPurchaseController::class);
         Route::resource('fotos', FotoController::class);
-        Route::resource('l10n', L10nController::class);
+        Route::resource('l10ns', L10nController::class);
+        Route::resource('categories', CategoryController::class);
+        Route::get('categories/{category}/children', [CategoryController::class, 'children'])->name('categories.children');
+        Route::get('categories/{category}/commerces', [CategoryController::class, 'commerces'])->name('categories.commerces');
     });
 });
 

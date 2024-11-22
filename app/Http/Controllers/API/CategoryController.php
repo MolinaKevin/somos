@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\Category;
+use App\Models\L10n;
+use App\Models\Commerce;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +18,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return response()->json(Category::all());
+        $categories = Category::all();
+
+        return response()->json($categories);
     }
 
     /**
@@ -97,5 +101,40 @@ class CategoryController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function commerces(Category $category)
+    {
+        // Obtener los IDs de las categorías hijas
+        $childCategoryIds = $category->children()->pluck('id');
+
+        $allCategoryIds = $childCategoryIds->prepend($category->id);
+
+        // Obtener los comercios asociados a estas categorías
+        $commerces = Commerce::whereHas('categories', function ($query) use ($allCategoryIds) {
+            $query->whereIn('categories.id', $allCategoryIds);
+        })->get();
+
+        return response()->json($commerces);
+    }
+
+    public function details(Category $category)
+    {
+        // Obtener todas las categorías hijas
+        $childCategories = $category->children;
+
+        // Obtener IDs de todas las categorías hijas
+        $childCategoryIds = $childCategories->pluck('id');
+
+        // Obtener los comercios asociados a la categoría inicial y sus hijas
+        $commerces = Commerce::whereHas('categories', function ($query) use ($childCategoryIds, $category) {
+            $query->whereIn('categories.id', $childCategoryIds->prepend($category->id));
+        })->get();
+
+        return response()->json([
+            'child_categories' => $childCategories,
+            'commerces' => $commerces,
+        ]);
+    }
+
 }
 

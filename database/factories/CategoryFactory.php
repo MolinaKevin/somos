@@ -17,11 +17,12 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
-        $name = $this->faker->word;
+        $name = $this->faker->words(2, true);
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name),
+            //'slug' => Str::slug($name),
+            'slug' => null,
             'parent_id' => null,
         ];
     }
