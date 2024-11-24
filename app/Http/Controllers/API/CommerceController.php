@@ -75,5 +75,20 @@ class CommerceController extends Controller
         return response()->json(['success' => true, 'message' => 'Commerce unaccepted and deactivated successfully.']);
     }
 
+    public function filterByCategories(Request $request)
+    {
+        $categoryIds = $request->input('category_ids', []);
 
+        // Obtener todas las categorías hijas de las categorías seleccionadas
+        $allCategoryIds = Category::whereIn('id', $categoryIds)
+            ->orWhereIn('parent_id', $categoryIds)
+            ->pluck('id');
+
+        // Obtener los comercios asociados a estas categorías
+        $commerces = Commerce::whereHas('categories', function ($query) use ($allCategoryIds) {
+            $query->whereIn('categories.id', $allCategoryIds); // Especifica 'categories.id'
+        })->get();
+
+        return response()->json(['data' => $commerces]);
+    }
 }

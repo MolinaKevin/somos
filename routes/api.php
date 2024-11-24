@@ -41,6 +41,7 @@ Route::post('points/give', [PointController::class,'give']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/commerces', [CommerceController::class, 'index']);
+Route::post('/commerces/filter-by-categories', [CommerceController::class, 'filterByCategories']);
 Route::apiResource('categories', CategoryController::class)->only(['index']);
 Route::get('/categories/{category}/details', [CategoryController::class, 'details']);
 Route::get('/categories/{category}/commerces', [CategoryController::class, 'commerces']);
