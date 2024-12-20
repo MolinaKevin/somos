@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Rules\TimeFormat;
 
 class UserCommerceController extends Controller
 {
@@ -56,8 +57,8 @@ class UserCommerceController extends Controller
             'percent' => 'nullable|numeric',
             'donated_points' => 'nullable|numeric',
             'gived_points' => 'nullable|numeric',
-            'opening_time' => 'nullable|date_format:G:i',
-            'closing_time' => 'nullable|date_format:G:i',
+            'opening_time' => ['nullable', new TimeFormat],
+            'closing_time' => ['nullable', new TimeFormat],
             'categories' => 'nullable|array',
             'categories.*' => 'exists:categories,id',
             'seals' => 'nullable|array',
@@ -125,8 +126,8 @@ class UserCommerceController extends Controller
                 'percent' => 'nullable|numeric',
                 'donated_points' => 'nullable|numeric',
                 'gived_points' => 'nullable|numeric',
-                'opening_time' => 'nullable|date_format:G:i',
-                'closing_time' => 'nullable|date_format:G:i',
+                'opening_time' => ['nullable', new TimeFormat],
+                'closing_time' => ['nullable', new TimeFormat],
                 'categories' => 'nullable|array',
                 'categories.*' => 'exists:categories,id',
                 'seals' => 'nullable|array',

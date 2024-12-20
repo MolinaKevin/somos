@@ -42,11 +42,11 @@ class L10n extends Model
         parent::boot();
 
         static::saved(function ($l10n) {
-            self::exportTranslations($l10n->locale);
+            self::restoreTranslations();
         });
 
         static::deleted(function ($l10n) {
-            self::exportTranslations($l10n->locale);
+            self::restoreTranslations();
         });
     }
 
@@ -56,7 +56,7 @@ class L10n extends Model
      * @param string $locale
      * @return void
      */
-    public static function exportTranslations($locale)
+    private static function exportTranslations($locale)
     {
         $translations = self::where('locale', $locale)->get()->groupBy('group')->map(function ($items) {
             return $items->pluck('value', 'key');
@@ -64,6 +64,15 @@ class L10n extends Model
 
         $filePath = public_path("lang/{$locale}.json");
         File::put($filePath, $translations->toJson(JSON_PRETTY_PRINT));
+    }
+
+    public static function restoreTranslations()
+    {
+        $locales = self::distinct('locale')->pluck('locale');
+
+        foreach ($locales as $locale) {
+            self::exportTranslations($locale); 
+        }
     }
 }
 
