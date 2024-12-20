@@ -15,7 +15,7 @@ it('can create a points purchase', function () {
     $pointsPurchase->commerce()->associate($commerce);
     $pointsPurchase->save();
     
-    // Asserts
+    
     expect($pointsPurchase->user_id)->toBe($user->id);
     expect($pointsPurchase->commerce_id)->toBe($commerce->id);
 });
@@ -34,7 +34,7 @@ it('user points decrease after points purchase', function () {
     $this->actingAs($user)
 		 ->get(route('pointsPurchase.pay', ['uuid' => $pointsPurchase->uuid]));
 
-    // Asserts
+    
     expect($user->fresh()->points)->toBe(400.0);
 });
 
@@ -46,7 +46,7 @@ it('cannot make points purchase if user has insufficient points', function () {
     $pointsPurchase->commerce()->associate($commerce);
     $pointsPurchase->save();
 
-    // La siguiente línea debería lanzar una excepción
+    
     expect(fn() => $pointsPurchase->payWithPoints($user))
         ->toThrow(InsufficientPointsException::class);
 });
@@ -64,7 +64,7 @@ it('commerce points increase after points purchase', function () {
   $this->actingAs($user)
        ->get(route('pointsPurchase.pay', ['uuid' => $pointsPurchase->uuid]));
 
-  // Asserts
+  
   expect($commerce->fresh()->points)->toEqual(1100.0);
 });
 
@@ -76,10 +76,10 @@ it('user points decrease after points purchase paid with qr', function () {
   $pointsPurchase->commerce()->associate($commerce);
   $pointsPurchase->save();
 
-  // Create the QR Code for this PointsPurchase
+  
   //$qrCode = $commerce->createQrPointsCode($pointsPurchase);
 
-  // Simulate the user scanning the QR Code to pay
+  
   $this->actingAs($user)
        ->get(route('pointsPurchase.pay', ['uuid' => $pointsPurchase->uuid]));
 

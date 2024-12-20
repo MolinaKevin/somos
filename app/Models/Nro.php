@@ -29,12 +29,12 @@ class Nro extends Model
 
     public function contribute()
     {
-        // Calcula el monto de la contribución basado en el porcentaje inverso
+        
         //dd($this->percent, $this->contributed_points, (1 - $this->percent/100), (1-$this->percent/100) * $this->contributed_points);
         $contributionAmount = (1 - $this->percent/100) * $this->to_contribute;
 
-        // Asegúrate de que la relación con Somos esté definida en tu modelo Nro
-        // Esto incrementará los points de la entidad Somos asociada
+        
+        
         $this->somos->increment('points', $contributionAmount);
         $this->increment('contributed_points', $contributionAmount);
         $this->to_contribute = 0;
@@ -47,7 +47,7 @@ class Nro extends Model
 
         $this->contributions()->save($contribution);
 
-        // Retorna el monto de la contribución para poder realizar cualquier otro cálculo o comprobación que necesites
+        
         return $contributionAmount;
     }
 
@@ -58,23 +58,23 @@ class Nro extends Model
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
-            // Si el avatar está presente, devolver la URL completa
+            
             return asset('storage/' . $this->avatar);
         }
 
-        // Si no hay avatar, devolver la URL del avatar por defecto
+        
         return asset('storage/avatars/avatar_fake.png');
     }
 
     public function getBackgroundImageAttribute()
     {
-        // Si el comercio tiene una imagen de fondo asociada, devolver la URL
+        
         if ($this->background_image_id) {
             $foto = Foto::find($this->background_image_id);
             return $foto ? asset('storage/'. $foto->path) : asset('storage/fotos/nros/default_background.jpg');
         }
 
-        // Si no tiene imagen de fondo, devolver una URL por defecto
+        
         return asset('storage/fotos/nros/default_background.jpg');
     }
 
@@ -82,13 +82,13 @@ class Nro extends Model
     {
         return $this->fotos
             ->filter(function ($foto) {
-                // Excluir la foto que está asignada como background_image
+                
                 return $foto->id !== $this->background_image_id;
             })
             ->map(function ($foto) {
                 return asset('storage/' . $foto->path);
             })
-            ->values(); // Asegurarse de reiniciar las claves de la colección
+            ->values(); 
     }
 
     public function getIsOpenAttribute()

@@ -42,7 +42,7 @@ return [
         ],
 
 		'api' => [
-			'driver' => 'sanctum', // o 'sanctum' si estás utilizando Laravel Sanctum
+			'driver' => 'sanctum', 
 			'provider' => 'users',
 			'hash' => false,
 		],
@@ -71,10 +71,10 @@ return [
             'model' => App\Models\User::class,
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        
+        
+        
+        
     ],
 
     /*

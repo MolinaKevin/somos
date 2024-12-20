@@ -25,9 +25,9 @@ it('can register a new user', function () {
 
     $response = post('/register', $userData);
 
-    $response->assertRedirect('/dashboard'); // Suponiendo que rediriges a '/home' tras el registro
+    $response->assertRedirect('/dashboard'); 
 
-    // Asegura que el usuario fue creado y está autenticado
+    
     assertAuthenticated();
     $this->assertDatabaseHas('users', [
         'name' => 'Test User',

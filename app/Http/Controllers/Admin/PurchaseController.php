@@ -15,10 +15,10 @@ class PurchaseController extends Controller
      */
     public function index()
     {
-        // Obtener todas las compras con sus relaciones
+        
         $purchases = Purchase::with(['commerce', 'user'])->get();
 
-        // Retornar la vista con las compras
+        
         return view('admin.purchases.index', compact('purchases'));
     }
 
@@ -27,9 +27,9 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        // Obtener las entidades relacionadas para el formulario
+        
         $commerces = Commerce::all();
-        $users = User::all(); // Obtener todos los usuarios
+        $users = User::all(); 
 
         return view('admin.purchases.create', compact('commerces', 'users'));
     }
@@ -39,14 +39,14 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar los datos de la compra
+        
         $validatedData = $request->validate([
             'commerce_id' => 'required|exists:commerces,id',
             'user_id' => 'required|exists:users,id',
             'amount' => 'required|numeric|min:0',
         ]);
 
-        // Crear la compra después de la validación exitosa
+        
         Purchase::create($validatedData);
 
         return redirect('/admin/purchases')->with('status', 'Compra creada exitosamente');
@@ -57,10 +57,10 @@ class PurchaseController extends Controller
      */
     public function show($id)
     {
-        // Buscar la compra con sus relaciones
+        
         $purchase = Purchase::with(['commerce', 'user'])->findOrFail($id);
 
-        // Retornar la vista con los detalles de la compra
+        
         return view('admin.purchases.show', compact('purchase'));
     }
 
@@ -69,10 +69,10 @@ class PurchaseController extends Controller
      */
     public function edit(string $id)
     {
-        // Buscar la compra y cargar las entidades relacionadas para el formulario de edición
+        
         $purchase = Purchase::findOrFail($id);
         $commerces = Commerce::all();
-        $users = User::all(); // Obtener todos los usuarios
+        $users = User::all(); 
 
         return view('admin.purchases.edit', compact('purchase', 'commerces', 'users'));
     }
@@ -82,14 +82,14 @@ class PurchaseController extends Controller
      */
     public function update(Request $request, Purchase $purchase)
     {
-        // Validar los datos de la compra
+        
         $validatedData = $request->validate([
             'commerce_id' => 'required|exists:commerces,id',
             'user_id' => 'required|exists:users,id',
             'amount' => 'required|numeric|min:0',
         ]);
 
-        // Actualizar la compra
+        
         $purchase->update($validatedData);
 
         return redirect()->route('admin.purchases.index')->with('status', 'Compra actualizada exitosamente');
@@ -100,7 +100,7 @@ class PurchaseController extends Controller
      */
     public function destroy(Purchase $purchase)
     {
-        // Eliminar la compra
+        
         $purchase->delete();
 
         return redirect('/admin/purchases')->with('status', 'Compra eliminada exitosamente');

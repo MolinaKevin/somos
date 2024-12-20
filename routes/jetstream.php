@@ -29,7 +29,7 @@ Route::group(['middleware' => config('jetstream.middleware', ['web'])], function
         : null;
 
     Route::group(['middleware' => array_values(array_filter([$authMiddleware, $authSessionMiddleware]))], function () {
-        // User & Profile...
+        
         Route::get('/user/profile', [UserProfileController::class, 'show'])
             ->name('profile.show');
 
@@ -45,7 +45,7 @@ Route::group(['middleware' => config('jetstream.middleware', ['web'])], function
         }
 
         Route::group(['middleware' => 'verified'], function () {
-            // API...
+            
             if (Jetstream::hasApiFeatures()) {
                 Route::get('/user/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');
                 Route::post('/user/api-tokens', [ApiTokenController::class, 'store'])->name('api-tokens.store');
@@ -53,7 +53,7 @@ Route::group(['middleware' => config('jetstream.middleware', ['web'])], function
                 Route::delete('/user/api-tokens/{token}', [ApiTokenController::class, 'destroy'])->name('api-tokens.destroy');
             }
 
-            // Teams...
+            
             if (Jetstream::hasTeamFeatures()) {
                 Route::get('/teams/create', [TeamController::class, 'create'])->name('teams.create');
                 Route::post('/teams', [TeamController::class, 'store'])->name('teams.store');

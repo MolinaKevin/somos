@@ -13,10 +13,10 @@ class SomosController extends Controller
      */
     public function index()
     {
-        // Obtener todos los somos
+        
         $somos = Somos::all();
 
-        // Retornar la vista con los somos
+        
         return view('admin.somos.index', compact('somos'));
     }
 
@@ -40,7 +40,7 @@ class SomosController extends Controller
             'plz' => 'string|max:255',
         ]);
 
-        // Crear el somos después de la validación exitosa
+        
         Somos::create($validatedData);
 
         return redirect('/admin/somos')->with('status', 'Somos created successfully');
@@ -71,7 +71,7 @@ class SomosController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $somos = Somos::findOrFail($id);  // Carga el modelo manualmente
+        $somos = Somos::findOrFail($id);  
 
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
@@ -90,7 +90,7 @@ class SomosController extends Controller
      */
     public function destroy($id)
     {
-        $somos = Somos::findOrFail($id);  // Carga el modelo manualmente
+        $somos = Somos::findOrFail($id);  
 
         $somos->delete();
 

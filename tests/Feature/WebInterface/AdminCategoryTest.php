@@ -8,16 +8,16 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    // Crear un usuario administrador autenticado para todos los tests
+    
     $this->admin = User::factory()->create();
     $this->actingAs($this->admin);
 });
 
 it('can list categories in the admin panel', function () {
-    // Crear algunas categorías
+    
     Category::factory()->count(3)->create();
 
-    // Acceder a la página de categorías
+    
     $response = $this->get('/admin/categories');
 
     $response->assertStatus(200);
@@ -88,10 +88,10 @@ it('can create a child category', function () {
     $response->assertRedirect('/admin/categories');
     $childCategory = Category::where('name', 'Child Category')->first();
 
-    // Verificar que la categoría hija tiene el padre correcto
+    
     $this->assertEquals($parentCategory->id, $childCategory->parent_id);
 
-    // Verificar que el padre tiene a la hija en la relación
+    
     $this->assertTrue($parentCategory->children->contains($childCategory));
 });
 

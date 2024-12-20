@@ -25,10 +25,10 @@ class L10nFactory extends Factory
     public function definition(): array
     {
         return [
-            'locale' => $this->faker->languageCode,  // Código de idioma aleatorio, como 'en', 'es', etc.
-            'group' => $this->faker->word,            // Un grupo aleatorio para la traducción
-            'key' => $this->faker->word,              // Una clave aleatoria, como 'welcome', 'login', etc.
-            'value' => $this->faker->sentence,        // Un valor aleatorio para la traducción
+            'locale' => $this->faker->languageCode,  
+            'group' => $this->faker->word,            
+            'key' => $this->faker->word,              
+            'value' => $this->faker->sentence,        
         ];
     }
 }

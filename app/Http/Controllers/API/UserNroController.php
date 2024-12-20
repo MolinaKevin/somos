@@ -84,7 +84,7 @@ class UserNroController extends Controller
 
     public function show(Nro $nro)
     {
-        // Solo se puede acceder si el usuario actual es el propietario de este nro
+        
         if (!$nro->users->contains(Auth::id())) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
@@ -113,7 +113,7 @@ class UserNroController extends Controller
             }
         }
 
-        // Guardar la actualización del comercio
+        
         $nro->update($request->all());
         $nro->save();
 

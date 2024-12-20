@@ -11,12 +11,12 @@ class SomosController extends Controller
 
     public function index(Request $request)
     {
-        $perPage = $request->query('per_page', 15); // Número de resultados por página
+        $perPage = $request->query('per_page', 15); 
 
-        // Realizar la consulta para obtener los registros de Somos
+        
         $somos = Somos::paginate($perPage);
 
-        // Devolver la respuesta en formato JSON con código de estado 200
+        
         return response()->json($somos, 200);
     }
 
@@ -28,7 +28,7 @@ class SomosController extends Controller
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'plz' => 'required|string|max:10',
-            // otros campos a validar...
+            
         ]);
 
         $somos = Somos::create($validatedData);
@@ -43,7 +43,7 @@ class SomosController extends Controller
 
     public function update(Request $request, Somos $somos)
     {
-        // Validar solo los campos que deben ser requeridos o tienen restricciones específicas
+        
         $validatedData = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'address' => 'sometimes|required|string|max:255',
@@ -51,13 +51,13 @@ class SomosController extends Controller
             'plz' => 'sometimes|required|string|max:10',
         ]);
 
-        // Combinar datos validados con otros datos permitidos (por ejemplo, 'description')
+        
         $dataToUpdate = array_merge(
             $validatedData,
             $request->only(['description', 'email', 'phone_number', 'website', 'operating_hours'])
         );
 
-        // Actualizar el modelo con todos los datos permitidos
+        
         $somos->update($dataToUpdate);
 
 

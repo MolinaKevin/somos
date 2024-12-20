@@ -38,7 +38,7 @@ it('cannot create a donation if not enough donated points', function () {
 
     $donationService->createDonation($commerce, $nro, 50.00, false);
 
-    // Verificamos que la donación no se haya guardado en la base de datos
+    
     $this->assertDatabaseMissing('donations', [
         'commerce_id' => $commerce->id,
         'nro_id' => $nro->id,
@@ -71,7 +71,7 @@ it('cannot create a package of donations if total points exceeds donated points'
 
     $donationService = new DonationService(); 
 
-    // Primero probamos con una cantidad total de donación válida
+    
     try {
         $donations = $donationService->createDonationPackage($commerce1, [
             ['nro' => $nro1, 'points' => 35],
@@ -79,7 +79,7 @@ it('cannot create a package of donations if total points exceeds donated points'
             ['nro' => $nro3, 'points' => 50],
         ], false);
 
-        // Verificamos que todas las donaciones se hayan creado
+        
         foreach ($donations as $donation) {
             $this->assertDatabaseHas('donations', [
                 'id' => $donation->id,
@@ -93,7 +93,7 @@ it('cannot create a package of donations if total points exceeds donated points'
         $this->fail("Donation package creation should have been successful.");
     }
 
-    // Ahora probamos con una cantidad total de donación que excede los puntos donados
+    
     try {
         $donations = $donationService->createDonationPackage($commerce2, [
             ['nro' => $nro1, 'points' => 35],
@@ -126,11 +126,11 @@ it('cannot create a package of donations if total points leaves more than 1 dona
         $this->fail("Donation package creation should have been successful.");
     }
 
-    // Check that the sum of the donations does not leave more than 1 donated point.
+    
     $sumOfDonations = array_sum(array_column($donationData, 'points'));
     $this->assertTrue($commerce->gived_points - $sumOfDonations <= 1);
 
-    // Confirm each donation is in the database
+    
     foreach ($donationData as $data) {
         $this->assertDatabaseMissing('donations', [
             'commerce_id' => $commerce->id,

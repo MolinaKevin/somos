@@ -290,13 +290,13 @@ it('deactivates a nro when it is unaccepted', function () {
 });
 
 it('authenticated user can create nro', function () {
-    // Crear un usuario
+    
     $user = User::factory()->create();
 
-    // Crear un Somos
+    
     $somos = Somos::factory()->create();
 
-    // Datos para crear el nro
+    
     $data = [
         'somos_id' => $somos->id,
         'name' => 'Test Nro',
@@ -315,16 +315,16 @@ it('authenticated user can create nro', function () {
         'percent' => 10.5,
     ];
 
-    // Autenticar al usuario
+    
     Sanctum::actingAs($user, ['*']);
 
-    // Enviar la solicitud para crear el nro
+    
     $response = $this->postJson('/api/user/nros', $data);
 
-    // Verificar que la respuesta tenga el código de estado 201 (Creado)
+    
     $response->assertStatus(201);
 
-    // Verificar que el nro existe en la base de datos
+    
     $this->assertDatabaseHas('nros', [
         'name' => 'Test Nro',
         'email' => 'nro@example.com',
@@ -332,45 +332,45 @@ it('authenticated user can create nro', function () {
 });
 
 it('authenticated user can get nro list', function () {
-    // Crear un usuario
+    
     $user = User::factory()->create();
 
-    // Crear varios Nro y asociarlos al usuario
+    
     $nros = Nro::factory()->count(3)->create()->each(function ($nro) use ($user) {
         $nro->users()->attach($user->id);
     });
 
-    // Autenticar al usuario
+    
     Sanctum::actingAs($user, ['*']);
 
-    // Enviar la solicitud para obtener la lista de Nros del usuario autenticado
+    
     $response = $this->getJson('/api/user/nros');
 
-    // Verificar que la respuesta sea exitosa
+    
     $response->assertStatus(200);
 
-    // Verificar que se retornan 3 Nros
+    
     $response->assertJsonCount(3, 'data');
 });
 
 it('authenticated user can get specific nro', function () {
-    // Crear un usuario
+    
     $user = User::factory()->create();
 
-    // Crear un nro y asociarlo al usuario
+    
     $nro = Nro::factory()->create();
     $nro->users()->attach($user->id);
 
-    // Autenticar al usuario
+    
     Sanctum::actingAs($user, ['*']);
 
-    // Enviar la solicitud para obtener un nro específico
+    
     $response = $this->getJson("/api/user/nros/{$nro->id}");
 
-    // Verificar que la respuesta sea exitosa
+    
     $response->assertStatus(200);
 
-    // Verificar que la respuesta contiene los datos del nro
+    
     $response->assertJsonFragment([
         'id' => $nro->id,
         'name' => $nro->name,
@@ -378,26 +378,26 @@ it('authenticated user can get specific nro', function () {
 });
 
 it('authenticated user can update nro', function () {
-    // Crear un usuario
+    
     $user = User::factory()->create();
 
-    // Crear un nro y asociarlo al usuario
+    
     $nro = Nro::factory()->create();
     $nro->users()->attach($user->id);
 
-    // Datos para actualizar el nro
+    
     $data = ['name' => 'Updated Nro Name'];
 
-    // Autenticar al usuario
+    
     Sanctum::actingAs($user, ['*']);
 
-    // Enviar la solicitud para actualizar el nro
+    
     $response = $this->putJson("/api/user/nros/{$nro->id}", $data);
 
-    // Verificar que la respuesta sea exitosa
+    
     $response->assertStatus(200);
 
-    // Verificar que el nro fue actualizado
+    
     $this->assertDatabaseHas('nros', [
         'id' => $nro->id,
         'name' => 'Updated Nro Name',
@@ -405,23 +405,23 @@ it('authenticated user can update nro', function () {
 });
 
 it('authenticated user can delete nro', function () {
-    // Crear un usuario
+    
     $user = User::factory()->create();
 
-    // Crear un nro y asociarlo al usuario
+    
     $nro = Nro::factory()->create();
     $nro->users()->attach($user->id);
 
-    // Autenticar al usuario
+    
     Sanctum::actingAs($user, ['*']);
 
-    // Enviar la solicitud para eliminar el nro
+    
     $response = $this->deleteJson("/api/user/nros/{$nro->id}");
 
-    // Verificar que la respuesta sea exitosa
+    
     $response->assertStatus(204);
 
-    // Verificar que el nro fue eliminado
+    
     $this->assertDatabaseMissing('nros', [
         'id' => $nro->id,
     ]);

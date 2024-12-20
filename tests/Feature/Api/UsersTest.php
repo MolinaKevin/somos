@@ -8,31 +8,31 @@ use Laravel\Sanctum\Sanctum;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    // Asegúrate de que la base de datos se reinicie entre pruebas
+    
     $this->refreshDatabase();
     $user = User::factory()->create();
     Sanctum::actingAs($user, ['*']);
 });
 
 it('creates a new user through the API', function () {
-    // Crear un usuario existente que será el referenciador
+    
     User::create([
         'name' => 'Referrer User',
         'email' => 'referrer@example.com',
         'password' => Hash::make('password'),
         'language' => 'en',
-        'pass' => 'KK-36779437', // Este será el pass referenciado
+        'pass' => 'KK-36779437', 
     ]);
 
-    // Crear el nuevo usuario
+    
     $userData = [
         'name' => 'Test User',
         'email' => 'testuser@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
         'language' => 'en',
-        'pass' => 'TT-36779437', // Puede ser un nuevo pass
-        'referrer_pass' => 'KK-36779437', // Referenciando el pass del usuario existente
+        'pass' => 'TT-36779437', 
+        'referrer_pass' => 'KK-36779437', 
         'current_team_id' => 1,
     ];
 
@@ -53,7 +53,7 @@ it('fails to create a user with invalid data', function () {
         'name' => '',
         'email' => 'invalid-email',
         'password' => 'short',
-        'language' => 'long_language_code', // Invalid length
+        'language' => 'long_language_code', 
     ];
 
     $response = $this->postJson('/api/users', $userData);
@@ -114,7 +114,7 @@ it('fails to update a user with invalid data', function () {
 
     $updateData = [
         'email' => 'invalid-email',
-        'language' => 'long_language_code', // Invalid length
+        'language' => 'long_language_code', 
     ];
 
     $response = $this->putJson("/api/users/{$user->id}", $updateData);

@@ -13,10 +13,10 @@ class CommerceController extends Controller
      */
     public function index()
     {
-        // Obtener todos los comercios
+        
         $commerces = Commerce::all();
 
-        // Retornar la vista con los comercios
+        
         return view('admin.commerces.index', compact('commerces'));
     }
 
@@ -45,7 +45,7 @@ class CommerceController extends Controller
             'accepted' => 'boolean',
         ]);
 
-        // Crear el comercio después de la validación exitosa
+        
         Commerce::create($validatedData);
 
         return redirect('/admin/commerces')->with('status', 'Commerce created successfully');

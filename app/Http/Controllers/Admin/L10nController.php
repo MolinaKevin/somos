@@ -13,10 +13,10 @@ class L10nController extends Controller
      */
     public function index()
     {
-        // Obtener todas las traducciones
+        
         $translations = L10n::all();
 
-        // Retornar la vista con las traducciones
+        
         return view('admin.l10ns.index', compact('translations'));
     }
 
@@ -25,7 +25,7 @@ class L10nController extends Controller
      */
     public function create()
     {
-        // Retornar la vista para crear una nueva traducción
+        
         return view('admin.l10ns.create');
     }
 
@@ -34,7 +34,7 @@ class L10nController extends Controller
      */
     public function store(Request $request)
     {
-        // Validación de los datos de la traducción
+        
         $validatedData = $request->validate([
             'locale' => 'required|string|max:2',
             'group' => 'required|string|max:255',
@@ -43,7 +43,7 @@ class L10nController extends Controller
         ]);
 
 
-        // Verificar si ya existe una traducción con la misma clave y grupo
+        
         $existingTranslation = L10n::where('locale', $request->locale)
             ->where('group', $request->group)
             ->where('key', $request->key)
@@ -53,7 +53,7 @@ class L10nController extends Controller
             return response()->json(['error' => 'Duplicate translation'], 422);
         }
 
-        // Crear la nueva traducción
+        
         L10n::create($validatedData);
 
         return redirect()->route('admin.l10ns.index')->with('status', 'Traducción creada exitosamente');
@@ -64,10 +64,10 @@ class L10nController extends Controller
      */
     public function show($id)
     {
-        // Buscar la traducción
+        
         $translation = L10n::findOrFail($id);
 
-        // Retornar la vista con los detalles de la traducción
+        
         return view('admin.l10ns.show', compact('translation'));
     }
 
@@ -76,7 +76,7 @@ class L10nController extends Controller
      */
     public function edit($id)
     {
-        // Buscar la traducción para editar
+        
         $translation = L10n::findOrFail($id);
 
         return view('admin.l10ns.edit', compact('translation'));
@@ -87,7 +87,7 @@ class L10nController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validar los datos
+        
         $validatedData = $request->validate([
             'locale' => 'required|string|max:2',
             'group' => 'required|string|max:255',
@@ -95,13 +95,13 @@ class L10nController extends Controller
             'value' => 'required|string',
         ]);
 
-        // Buscar la traducción por ID
+        
         $translation = L10n::findOrFail($id);
 
-        // Actualizar la traducción con los datos validados
+        
         $translation->update($validatedData);
 
-        // Redirigir con un mensaje de éxito
+        
         return redirect()->route('admin.l10ns.index')->with('status', 'Traducción actualizada exitosamente');
     }
 
@@ -110,7 +110,7 @@ class L10nController extends Controller
      */
     public function destroy(L10n $l10n)
     {
-        // Eliminar la traducción
+        
         $l10n->delete();
 
         return redirect('/admin/l10ns')->with('status', 'Traducción eliminada exitosamente');

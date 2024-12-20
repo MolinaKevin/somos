@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\{
     FotoController,
     L10nController,
     CategoryController,
+    SealController,
 };
 
 
@@ -61,7 +62,11 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('pointsPurchases', AdminPointsPurchaseController::class);
         Route::resource('fotos', FotoController::class);
         Route::resource('l10ns', L10nController::class);
+        Route::resource('seals', SealController::class);
         Route::resource('categories', CategoryController::class);
+        Route::get('seals/{seal}/commerces', [SealController::class, 'commerces'])->name('seals.commerces');
+        Route::post('seals/{seal}/{state}/image', [SealController::class, 'updateStateImage'])->name('seals.updateStateImage');
+        Route::post('seals/{seal}/commerces', [SealController::class, 'associateCommerces'])->name('seals.associateCommerces');
         Route::get('categories/{category}/children', [CategoryController::class, 'children'])->name('categories.children');
         Route::get('categories/{category}/commerces', [CategoryController::class, 'commerces'])->name('categories.commerces');
     });
@@ -72,5 +77,5 @@ Route::middleware(['auth'])->group(function () {
 Route::get('pointsPurchase/pay/{uuid}', [PointsPurchaseController::class, 'pay'])->name('pointsPurchase.pay');
 Route::post('/pre-create-purchase', [PurchaseController::class, 'preCreate'])->name('preCreatePurchase');
 Route::post('purchase/pay/{uuid}', [PurchaseController::class, 'pay'])->name('purchase.pay');
-Route::get('purchase/pay/{uuid}', [PurchaseController::class, 'pay'])->name('purchase.pay');
+Route::get('purchase/pay/{uuid}', [PurchaseController::class, 'pay'])->name('purchase.payGet');
 

@@ -12,7 +12,7 @@ class ConversionHelper
      */
     public static function pointsToMoney(int $points): float
     {
-        // Imaginamos que 1 punto es igual a 0.01 en dinero
+        
         return $points * 0.01;
     }
 
@@ -24,7 +24,7 @@ class ConversionHelper
      */
     public static function moneyToPoints(float $money): int
     {
-        // Imaginamos que 1 punto es igual a 0.01 en dinero
+        
         return $money / 0.01;
     }
 }

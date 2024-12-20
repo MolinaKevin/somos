@@ -6,17 +6,17 @@ use App\Models\Nro;
 use App\Services\DonationService;
 
 it('gives all given points on cashout', function () {
-    // Crea un comercio
+    
     $commerce = Commerce::factory()->create(['gived_points' => 1000.0, 'donated_points' => 250.0]);
 
-    // Realiza el cierre
+    
     $cashout = new Cashout();
 
     $cashout->setCommerce($commerce);
 
     $cashout->perform();
 
-    // Verifica que los puntos del comercio sean 0 después del cierre
+    
     expect($commerce->fresh()->gived_points)->toBe(0.0);
 });
 
@@ -35,18 +35,18 @@ it('can create a cashout of donations if total points is almost equal to donated
 
     $cashout = $donationService->createDonationCashout($commerce, $donationData, false);
 
-    // Check that the sum of the donations does not leave more than 1 donated point.
+    
     $sumOfDonations = array_sum(array_column($donationData, 'points'));
     $this->assertTrue($commerce->gived_points - $sumOfDonations <= 1);
 
-    // Check the cashout in the database
+    
     $this->assertDatabaseHas('cashouts', [
         'id' => $cashout->id,
         'commerce_id' => $commerce->id,
         'points' => $sumOfDonations,
     ]);
 
-    // Confirm each donation is in the database and associated with the cashout 
+    
     foreach ($donationData as $data) {
         $this->assertDatabaseHas('donations', [
             'commerce_id' => $commerce->id,

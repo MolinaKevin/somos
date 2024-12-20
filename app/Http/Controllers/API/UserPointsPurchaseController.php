@@ -16,22 +16,22 @@ class UserPointsPurchaseController extends Controller
      */
     public function index(Request $request)
     {
-        // Obtener el usuario autenticado
+        
         $user = Auth::user();
 
-        // Obtener las compras de puntos del usuario
+        
         $query = $user->pointsPurchases();
 
-        // Filtrar por fechas si están presentes en la solicitud
+        
         if ($request->has('start_date') && $request->has('end_date')) {
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
 
-        // Obtener las compras de puntos con paginación
-        $perPage = $request->get('per_page', 15); // Establecer 15 como valor predeterminado
+        
+        $perPage = $request->get('per_page', 15); 
         $pointsPurchases = $query->paginate($perPage);
 
-        // Retornar la respuesta con los resultados de la paginación
+        
         return response()->json($pointsPurchases);
     }
 
@@ -43,7 +43,7 @@ class UserPointsPurchaseController extends Controller
      */
     public function show($id)
     {
-        // Obtener la compra de puntos por ID
+        
         $pointsPurchase = PointsPurchase::findOrFail($id);
 
         return response()->json($pointsPurchase);
@@ -57,21 +57,21 @@ class UserPointsPurchaseController extends Controller
      */
     public function destroy($id)
     {
-        // Obtener el usuario autenticado
+        
         $user = Auth::user();
 
-        // Buscar la compra de puntos por su ID
+        
         $pointsPurchase = PointsPurchase::where('id', $id)->where('user_id', $user->id)->first();
 
-        // Verificar si la compra de puntos existe y pertenece al usuario
+        
         if (!$pointsPurchase) {
             return response()->json(['message' => 'Compra de puntos no encontrada o no pertenece al usuario'], 404);
         }
 
-        // Eliminar la compra de puntos
+        
         $pointsPurchase->delete();
 
-        // Retornar una respuesta exitosa
+        
         return response()->json(['message' => 'Compra de puntos eliminada exitosamente'], 200);
     }
 }

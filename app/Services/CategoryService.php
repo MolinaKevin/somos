@@ -42,7 +42,7 @@ class CategoryService
     public function update(Category $category, array $data)
     {
         $validator = Validator::make($data, [
-            // Aquí debes especificar las reglas de validación para actualizar una categoría.
+            
         ]);
 
         if ($validator->fails()) {
@@ -64,10 +64,10 @@ class CategoryService
      */
     public function delete(Category $category, User $user)
     {
-        // Aquí podrías tener alguna lógica para verificar que el usuario tiene permiso para eliminar la categoría.
+        
 
         DB::transaction(function () use ($category) {
-            // Si la categoría tiene relaciones que deben ser eliminadas, hazlo aquí.
+            
 
             $category->delete();
         });

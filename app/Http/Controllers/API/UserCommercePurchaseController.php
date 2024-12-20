@@ -18,20 +18,20 @@ class UserCommercePurchaseController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Obtener los parámetros de fecha del request
+        
         $startDate = $request->query('start_date');
         $endDate = $request->query('end_date');
 
-        // Construir la consulta
+        
         $query = $commerce->purchases()->where('user_id', $user->id);
 
-        // Aplicar el filtro por rango de fechas si está presente
+        
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        // Paginación
-        $perPage = $request->query('per_page', 15); // Default per_page to 15 if not provided
+        
+        $perPage = $request->query('per_page', 15); 
         $purchases = $query->paginate($perPage);
 
         return response()->json($purchases, 200);

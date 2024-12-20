@@ -13,20 +13,20 @@ class ImageUploadController extends Controller
 {
     public function uploadCommerceImage(Request $request, $commerceId)
     {
-        // Validar que el campo 'foto' esté presente y sea una imagen
+        
         $request->validate([
-            'foto' => 'required|image|max:2048', // Usar 'foto' como campo
+            'foto' => 'required|image|max:2048', 
         ]);
 
         if ($request->hasFile('foto')) {
-            // Generar un path amigable para la imagen
+            
             $path = $request->file('foto')->storeAs(
                 "fotos/commerces/{$commerceId}",
                 $request->file('foto')->hashName(),
                 'public'
             );
 
-            // Guardar la imagen en la base de datos y asociarla al comercio
+            
             $commerce = Commerce::findOrFail($commerceId);
             $foto = new Foto();
             $foto->path = $path;
@@ -40,20 +40,20 @@ class ImageUploadController extends Controller
 
     public function uploadNroImage(Request $request, $nroId)
     {
-        // Validar que el campo 'foto' esté presente y sea una imagen
+        
         $request->validate([
             'foto' => 'required|image|max:2048',
         ]);
 
         if ($request->hasFile('foto')) {
-            // Generar un path amigable para la imagen
+            
             $path = $request->file('foto')->storeAs(
                 "fotos/nros/{$nroId}",
                 $request->file('foto')->hashName(),
                 'public'
             );
 
-            // Guardar la imagen en la base de datos y asociarla a la NRO
+            
             $nro = Nro::findOrFail($nroId);
             $foto = new Foto();
             $foto->path = $path;

@@ -20,11 +20,11 @@ abstract class DuskTestCase extends BaseTestCase
     {
         $options = (new FirefoxOptions())->addArguments([
             '--disable-gpu',
-            '--headless', // Si deseas que el navegador no abra una ventana.
+            '--headless', 
         ]);
 
         return RemoteWebDriver::create(
-            'http://localhost:4444', // Puerto por defecto para WebDriver, asegúrate de que esté funcionando GeckoDriver en este puerto.
+            'http://localhost:4444', 
             DesiredCapabilities::firefox()->setCapability(FirefoxOptions::CAPABILITY, $options)
         );
     }

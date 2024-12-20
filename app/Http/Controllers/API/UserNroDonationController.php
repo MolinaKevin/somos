@@ -14,15 +14,15 @@ class UserNroDonationController extends Controller
     {
         $user = Auth::user();
 
-        // Verificar que el usuario esté asociado con la NRO
+        
         if (!$nro->users->contains($user->id)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Recuperar las donaciones recibidas por la NRO
+        
         $query = $nro->donations();
 
-        // Aplicar la paginación si es necesario
+        
         $perPage = $request->query('per_page', 15);
         $donations = $query->paginate($perPage);
 

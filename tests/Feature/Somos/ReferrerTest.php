@@ -42,10 +42,10 @@ it('does not allow a user to change their referrer pass after registration', fun
 
     $user->referrer_pass = $referrer2->pass;
 
-    // Guardamos al usuario y esperamos que no se lance ninguna excepción
+    
     $user->save();
 
-    // Recargamos el modelo User desde la base de datos para asegurarnos de que no cambió
+    
     $user->refresh();
 
     $this->assertEquals($referrer1->pass, $user->referrer_pass);
@@ -56,7 +56,7 @@ it('requires that a referred user exists', function () {
     $user = User::factory()->make([
 		'name' => 'Test user',
 		'password' => 'secret',
-        'referrer_pass' => 'DE-ZZZZZZZZZ',  // ID inexistente
+        'referrer_pass' => 'DE-ZZZZZZZZZ',  
     ]);
 
     $response = $this->post(route('register'), $user->toArray());

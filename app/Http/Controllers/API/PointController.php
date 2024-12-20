@@ -51,39 +51,39 @@ class PointController extends Controller
 
 	public function give(Request $request)
 	{
-		// validación de los datos de entrada
+		
 		$validated = $request->validate([
 			'receiver_id' => 'required|exists:users,id',
 			'points' => 'required|integer|min:1',
 		]);
 
-		// obtén el usuario actualmente autenticado
+		
 		$giver = auth('api')->user();
 
-		// Si el usuario no esta autenticado
+		
 		if (!$giver) {
 			return response()->json([
                 'error' => 'Not authenticated.'
             ], 401);
 		}
 
-		// asegúrate de que el usuario tiene suficientes puntos para dar
+		
 		if ($giver->points < $validated['points']) {
 			return response()->json([
                 'error' => 'Not enough points to give.'
             ], 402);
 		}
 
-		// obtén el usuario que recibirá los puntos
+		
 		$receiver = User::find($validated['receiver_id']);
 
-		// transfiere los puntos
+		
 		DB::transaction(function () use ($giver, $receiver, $validated) {
 			$giver->decrement('points', $validated['points']);
 			$receiver->increment('points', $validated['points']);
 		});
 
-		// respuesta de éxito
+		
 		return response()->json(['message' => 'Points given successfully.']);
 	}
 	

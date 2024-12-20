@@ -20,10 +20,10 @@ class PhotoAccordion extends Component
 
     public function render()
     {
-        // Obtener todas las fotos con su relación fotable (comercio o NRO)
+        
         $fotos = Foto::with(['fotable'])->get();
 
-        // Agrupar las fotos por el ID del modelo relacionado (comercio o NRO)
+        
         $commerces = Commerce::getCommercesWithPhotos();
         $nros = Nro::getNrosWithPhotos();
         $entitys = $commerces->merge($nros);
@@ -37,10 +37,10 @@ class PhotoAccordion extends Component
     {
         $foto = Foto::find($fotoId);
         if ($foto) {
-            $foto->delete(); // Eliminar la foto
+            $foto->delete(); 
             session()->flash('message', 'Foto eliminada exitosamente.');
         }
-        $this->photoIdToDelete = null; // Resetea la variable
+        $this->photoIdToDelete = null; 
     }
 }
 

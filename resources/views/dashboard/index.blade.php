@@ -17,6 +17,7 @@
             <li><a href="{{ route('admin.fotos.index') }}">Administrar imágenes de fondo</a></li>
             <li><a href="{{ route('admin.l10ns.index') }}">Administrar traducciones</a></li>
             <li><a href="{{ route('admin.categories.index') }}">Administrar categorias</a></li>
+            <li><a href="{{ route('admin.seals.index') }}">Administrar sellos</a></li>
         </ul>
     </div>
 @endsection

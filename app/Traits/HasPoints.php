@@ -18,7 +18,7 @@ trait HasPoints
      */
     public function getPointsAttribute($value) 
     {
-        return $value; // Mantener el valor como número.
+        return $value; 
     }
 
     /**
@@ -26,7 +26,7 @@ trait HasPoints
      */
     public function getDonatedPointsAttribute($value)
     {
-        return $value; // Mantener el valor como número.
+        return $value; 
     }
 
     /**
@@ -34,7 +34,7 @@ trait HasPoints
      */
     public function getGivedToUsersPointsAttribute($value)
     {
-        return $value; // Mantener el valor como número.
+        return $value; 
     }
 
     /**

@@ -23,13 +23,13 @@ class Cashout extends Model
 
 
     public function perform() {
-        // Realiza la conversión de puntos a dinero
+        
         $this->points = $this->getAmount();
 
-        // Establece los puntos del comercio a 0
+        
         $this->commerce->gived_points = 0;
 
-        // Guarda el comercio
+        
         $this->commerce->save();
     }
 

@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
 use App\Models\Commerce;
+use App\Models\Category;
 use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
@@ -311,7 +312,7 @@ it('authenticated user can create commerce', function () {
         'email' => 'commerce@example.com',
         'phone_number' => '+1-123-456-7890',
         'website' => 'https://commerce.example.com',
-        'opening_time' => '09:00',
+        'opening_time' => '9:00',
         'closing_time' => '18:00',
         'latitude' => 40.7128,
         'longitude' => -74.0060,
@@ -333,7 +334,7 @@ it('authenticated user can get commerce list', function () {
     $user = User::factory()->create();
     $commerces = Commerce::factory()->count(3)->create();
 
-    // Asociar cada comercio al usuario
+    
     $commerces->each(function ($commerce) use ($user) {
         $commerce->users()->attach($user->id);
     });
@@ -344,28 +345,28 @@ it('authenticated user can get commerce list', function () {
 
     $response->assertStatus(200);
 
-    // Verificar que se retornan 3 comercios
+    
     $response->assertJsonCount(3, 'data');
 });
 
 it('authenticated user can get specific commerce', function () {
-    // Crear un usuario
+    
     $user = User::factory()->create();
 
-    // Crear un comercio y asociarlo al usuario
+    
     $commerce = Commerce::factory()->create();
     $commerce->users()->attach($user->id);
 
-    // Autenticar al usuario
+    
     Sanctum::actingAs($user, ['*']);
 
-    // Enviar la solicitud para obtener un comercio específico
+    
     $response = $this->getJson("/api/user/commerces/{$commerce->id}");
 
-    // Verificar que la respuesta sea exitosa
+    
     $response->assertStatus(200);
 
-    // Verificar que la respuesta contiene los datos del comercio
+    
     $response->assertJsonFragment([
         'id' => $commerce->id,
         'name' => $commerce->name,
@@ -373,26 +374,26 @@ it('authenticated user can get specific commerce', function () {
 });
 
 it('authenticated user can update commerce', function () {
-    // Crear un usuario
+    
     $user = User::factory()->create();
 
-    // Crear un comercio y asociarlo al usuario
+    
     $commerce = Commerce::factory()->create();
     $commerce->users()->attach($user->id);
 
-    // Datos para actualizar el comercio
+    
     $data = ['name' => 'Updated Commerce Name'];
 
-    // Autenticar al usuario
+    
     Sanctum::actingAs($user, ['*']);
 
-    // Enviar la solicitud para actualizar el comercio
+    
     $response = $this->putJson("/api/user/commerces/{$commerce->id}", $data);
 
-    // Verificar que la respuesta sea exitosa
+    
     $response->assertStatus(200);
 
-    // Verificar que el comercio fue actualizado
+    
     $this->assertDatabaseHas('commerces', [
         'id' => $commerce->id,
         'name' => 'Updated Commerce Name',
@@ -400,23 +401,23 @@ it('authenticated user can update commerce', function () {
 });
 
 it('authenticated user can delete commerce', function () {
-    // Crear un usuario
+    
     $user = User::factory()->create();
 
-    // Crear un comercio y asociarlo al usuario
+    
     $commerce = Commerce::factory()->create();
     $commerce->users()->attach($user->id);
 
-    // Autenticar al usuario
+    
     Sanctum::actingAs($user, ['*']);
 
-    // Enviar la solicitud para eliminar el comercio
+    
     $response = $this->deleteJson("/api/user/commerces/{$commerce->id}");
 
-    // Verificar que la respuesta sea exitosa
+    
     $response->assertStatus(204);
 
-    // Verificar que el comercio fue eliminado
+    
     $this->assertDatabaseMissing('commerces', [
         'id' => $commerce->id,
     ]);
@@ -472,5 +473,100 @@ it('allows unaccepting a commerce and deactivates it automatically', function ()
     $response->assertStatus(200);
     $this->assertFalse($commerce->fresh()->accepted);
     $this->assertFalse($commerce->fresh()->active);
+});
+
+it('updates a commerce and its associated categories', function () {
+    
+    $user = User::factory()->create();
+
+    
+    $commerce = Commerce::factory()->create();
+    $commerce->users()->attach($user->id);
+
+    
+    $categories = Category::factory()->count(3)->create();
+
+    
+    $updatedData = [
+        'name' => 'Updated Commerce Name',
+        'address' => 'Updated Address',
+        'city' => 'Updated City',
+        'plz' => '12345',
+        'latitude' => '50.123456',
+        'longitude' => '8.123456',
+        'opening_time' => '8:00',
+        'closing_time' => '20:00',
+        'categories' => $categories->pluck('id')->toArray(),
+    ];
+
+    
+    Sanctum::actingAs($user, ['*']);
+
+    
+    $response = $this->putJson("/api/user/commerces/{$commerce->id}", $updatedData);
+
+    
+    $response->assertStatus(200);
+
+    
+    $this->assertDatabaseHas('commerces', [
+        'id' => $commerce->id,
+        'name' => $updatedData['name'],
+        'address' => $updatedData['address'],
+        'city' => $updatedData['city'],
+        'plz' => $updatedData['plz'],
+        'latitude' => $updatedData['latitude'],
+        'longitude' => $updatedData['longitude'],
+        'opening_time' => $updatedData['opening_time'],
+        'closing_time' => $updatedData['closing_time'],
+    ]);
+
+    
+    $this->assertEquals(
+        $categories->pluck('id')->toArray(),
+        $commerce->categories->pluck('id')->toArray()
+    );
+
+});
+
+it('retrieves a commerce with associated categories as a list of IDs', function () {
+    
+    $user = User::factory()->create();
+
+    
+    $commerce = Commerce::factory()->create();
+    $commerce->users()->attach($user->id);
+
+    
+    $categories = Category::factory()->count(3)->create();
+    $commerce->categories()->attach($categories->pluck('id')->toArray());
+
+    
+    Sanctum::actingAs($user, ['*']);
+
+    
+    $response = $this->getJson("/api/user/commerces/{$commerce->id}");
+
+    
+    $response->assertStatus(200);
+
+    
+    $responseData = $response->json();
+
+    
+    $this->assertEquals($commerce->id, $responseData['id']);
+    $this->assertEquals($commerce->name, $responseData['name']);
+
+    
+    $this->assertArrayHasKey('category_ids', $responseData);
+
+    
+    $expectedCategoryIds = $categories->pluck('id')->toArray();
+    sort($expectedCategoryIds);
+
+    $responseCategoryIds = $responseData['category_ids'];
+    sort($responseCategoryIds);
+
+    $this->assertEquals($expectedCategoryIds, $responseCategoryIds);
 });
 

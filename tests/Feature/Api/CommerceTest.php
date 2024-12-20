@@ -12,21 +12,21 @@ uses(RefreshDatabase::class);
 it('returns all associated commerce for the authenticated user', function () {
     $user = User::factory()->create();
 
-    // Create some commerce and associate them with the user
+    
     $commerces = Commerce::factory()->count(3)->create();
 
-    // Attach the commerces to the user
+    
     $user->commerces()->attach($commerces->pluck('id'));
 
     Sanctum::actingAs($user, ['*']);
 
     $response = $this->getJson('/api/user/commerces');
 
-    // Check if the response is successful
+    
     $response->assertStatus(200);
 
-    // Verify the response JSON structure and contents
-    $response->assertJsonCount(3, 'data') // Verifica que hay 3 comercios
+    
+    $response->assertJsonCount(3, 'data') 
              ->assertJsonFragment(['id' => $commerces[0]->id])
              ->assertJsonFragment(['id' => $commerces[1]->id])
              ->assertJsonFragment(['id' => $commerces[2]->id]);
@@ -41,7 +41,7 @@ it('can create a new commerce for the authenticated user', function () {
         'address' => '123 Street',
         'city' => 'City',
         'plz' => '12345',
-        'opening_time' => '09:00', 
+        'opening_time' => '9:00', 
         'closing_time' => '17:30', 
         'latitude' => '50.34677900',
         'longitude' => '50.21799800'
@@ -103,25 +103,25 @@ it('can update a specific commerce for the authenticated user', function () {
     $user = User::factory()->create();
     $commerce = Commerce::factory()->create([]);
 
-    // Asociar el comercio al usuario
+    
     $user->commerces()->attach($commerce->id);
 
-    // Simular autenticación del usuario
+    
     Sanctum::actingAs($user, ['*']);
 
-    // Datos actualizados que queremos verificar
+    
     $updatedData = ['name' => 'Updated Commerce Name'];
 
-    // Hacer la solicitud de actualización
+    
     $response = $this->put("/api/user/commerces/{$commerce->id}", $updatedData);
 
-    // Verificar que la respuesta es exitosa
+    
     $response->assertStatus(200);
 
-    // Depurar la respuesta para verificar si la actualización se aplicó
-    $updatedCommerce = Commerce::find($commerce->id); // Recuperar el comercio actualizado
+    
+    $updatedCommerce = Commerce::find($commerce->id); 
 
-    // Verificar que el campo 'name' fue actualizado correctamente en la base de datos
+    
     $this->assertDatabaseHas('commerces', [
         'id' => $commerce->id,
         'name' => 'Updated Commerce Name',
@@ -181,49 +181,51 @@ it('lists all commerces', function () {
 it('can update the background_image of a specific commerce based on the provided URL for the authenticated user', function () {
     $user = User::factory()->create();
 
-    // Crear un comercio asociado al usuario
+    
     $commerce = Commerce::factory()->create([]);
     $user->commerces()->attach($commerce->id);
 
-    // Simular archivos de imagen y guardarlos en la tabla de fotos
+    
     $backgroundImage = UploadedFile::fake()->image('background-image.jpg');
 
-    // Subir la imagen simulada
+    
     Sanctum::actingAs($user, ['*']);
     $this->postJson("/api/commerces/{$commerce->id}/upload-image", ['foto' => $backgroundImage])
         ->assertStatus(200);
 
-    // Recuperar el registro de la imagen subida para simular la URL que enviará el front-end
+    
     $backgroundImagePath = "fotos/commerces/{$commerce->id}/" . $backgroundImage->hashName();
     $backgroundImageRecord = Foto::where('path', $backgroundImagePath)->first();
 
-    // Verificar que la imagen fue subida correctamente
+    
     $this->assertNotNull($backgroundImageRecord, 'La imagen de fondo no fue encontrada.');
 
-    // Preparar los datos actualizados, incluyendo la URL de la imagen
+    
     $updatedData = [
-        'background_image' => asset('storage/' . $backgroundImageRecord->path),  // Simular la URL que se enviaría desde el front
+        'background_image' => asset('storage/' . $backgroundImageRecord->path),  
     ];
 
-    // Hacer la solicitud de actualización
+    
     $response = $this->put("/api/user/commerces/{$commerce->id}", $updatedData);
 
-    // Verificar que la respuesta fue exitosa
+    
     $response->assertStatus(200);
 
-    // Recuperar el comercio actualizado
-    $updatedCommerce = $commerce->fresh(); // Refrescar el comercio para obtener los cambios más recientes
+    
+    $updatedCommerce = $commerce->fresh(); 
 
-    // Verificar que el `background_image_id` fue actualizado correctamente
+    //dd($updatedCommerce->background_image_id);
+
+    
     $this->assertEquals($backgroundImageRecord->id, $updatedCommerce->background_image_id, 'El background_image_id no se actualizó correctamente.');
 
-    // Verificar que la base de datos refleja la actualización del `background_image_id`
+    
     $this->assertDatabaseHas('commerces', [
         'id' => $commerce->id,
         'background_image_id' => $backgroundImageRecord->id,
     ]);
 
-    // Verificar que el background_image URL se genera correctamente
+    
     $expectedBackgroundImageUrl = asset('storage/' . $backgroundImageRecord->path);
     $this->assertEquals($expectedBackgroundImageUrl, $updatedCommerce->background_image, 'La URL del background_image no coincide.');
 });

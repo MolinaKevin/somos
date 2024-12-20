@@ -17,10 +17,10 @@ class LoginTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/login')
-                    ->type('email', 'admin@example.com') // Ajusta según tus datos
+                    ->type('email', 'admin@example.com') 
                     ->type('password', 'password')
-                    ->press('Login') // Ajusta si el botón tiene otro texto
-                    ->assertPathIs('/dashboard'); // Asegúrate de que redirija al lugar correcto
+                    ->press('Login') 
+                    ->assertPathIs('/dashboard'); 
         });
     }
 }

@@ -35,11 +35,11 @@ test('user can give and get points', function () {
 
     $response->assertStatus(200);
 
-	// Recargar los modelos de usuario
+	
     $giver->refresh();
     $receiver->refresh();
 
-    // Asegurarse de que los puntos fueron transferidos correctamente
+    
     expect($giver->points)->toBe($points);
     expect($receiver->points)->toBe($points);
 });
@@ -61,7 +61,7 @@ test('user get unauthenticated', function () {
         ['*']
     );
 	
-	// Post without Token
+	
 	$response = $this->postJson('/api/points/give', [
 		'points' => $points,
 		'receiver_id' => $receiver->id
@@ -78,11 +78,11 @@ test('user get unauthenticated', function () {
 
     $response->assertStatus(401);
 
-	// Recargar los modelos de usuario
+	
     $giver->refresh();
     $receiver->refresh();
 
-    // Asegurarse de que los puntos no fueron transferidos 
+    
     expect($giver->points)->toBe($points*2);
     expect($receiver->points)->toBe(0.0);
 });
@@ -123,11 +123,11 @@ test('user cannot give more points as he have', function () {
 
     $response->assertStatus(402);
 
-	// Recargar los modelos de usuario
+	
     $giver->refresh();
     $receiver->refresh();
 
-    // Asegurarse de que los puntos no fueron transferidos 
+    
     expect($giver->points)->toBe($points/2);
     expect($receiver->points)->toBe(0.0);
 });

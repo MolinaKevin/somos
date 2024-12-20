@@ -14,7 +14,7 @@ class Category extends Model
 
     protected $fillable = ['name', 'slug', 'parent_id'];
 
-    // Agregar el atributo "translated_name" automáticamente al serializar el modelo
+    
     protected $appends = ['translated_name'];
 
     /**
@@ -59,7 +59,7 @@ class Category extends Model
      */
     public function getTranslatedNameAttribute(): string
     {
-        $locale = auth()->check() ? auth()->user()->language : 'en'; // Idioma del usuario autenticado o inglés por defecto.
+        $locale = auth()->check() ? auth()->user()->language : 'en'; 
         return $this->translationsByLocale($locale)->value('value') ?? $this->name;
     }
 

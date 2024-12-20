@@ -21,15 +21,15 @@ class UserNroContributionController extends Controller
     {
         $user = Auth::user();
 
-        // Verificar que el usuario esté asociado con la NRO
+        
         if (!$nro->users->contains($user->id)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // Recuperar las contribuciones realizadas por la NRO
+        
         $query = $nro->contributions();
 
-        // Aplicar la paginación si es necesario
+        
         $perPage = $request->query('per_page', 15);
         $contributions = $query->paginate($perPage);
 
@@ -47,7 +47,7 @@ class UserNroContributionController extends Controller
     {
         $user = Auth::user();
 
-        // Verificar que la contribución pertenece a la NRO y que el usuario está autorizado
+        
         if ($contribution->nro_id !== $nro->id || !$nro->users->contains($user->id)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }

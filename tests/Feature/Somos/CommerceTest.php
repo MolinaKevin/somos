@@ -10,21 +10,21 @@ it('a user can have a commerce', function () {
     $user = User::factory()->create();
     $commerce = Commerce::factory()->create();
 
-    // Attach the commerce to the user
+    
     $user->commerces()->attach($commerce->id);
 
-    // Check if the user has the commerce
+    
     $this->assertTrue($user->commerces->contains($commerce));
 });
 
 it('a commerce can have multiple users', function () {
-    $commerce = Commerce::factory()->create(); // Esto crea también una Entity
+    $commerce = Commerce::factory()->create(); 
     $users = User::factory()->count(3)->create();
 
-    // Attach the users to the commerce
+    
     $commerce->users()->attach($users->pluck('id'));
 
-    // Check if the commerce has all the users
+    
     foreach ($users as $user) {
         $this->assertTrue($commerce->users->contains($user));
     }
@@ -32,12 +32,12 @@ it('a commerce can have multiple users', function () {
 
 it('a user can have multiple commerces', function () {
     $user = User::factory()->create();
-    $commerces = Commerce::factory()->count(3)->create(); // Esto crea también una Entity para cada Commerce
+    $commerces = Commerce::factory()->count(3)->create(); 
 
-    // Attach the commerces to the user
+    
     $user->commerces()->attach($commerces->pluck('id'));
 
-    // Check if the user has all the commerces
+    
     foreach ($commerces as $commerce) {
         $this->assertTrue($user->commerces->contains($commerce));
     }

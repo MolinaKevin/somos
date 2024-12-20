@@ -15,10 +15,10 @@ class DonationController extends Controller
      */
     public function index()
     {
-        // Obtener todas las donaciones
+        
         $donations = Donation::with(['commerce', 'nro'])->get();
 
-        // Retornar la vista con las donaciones
+        
         return view('admin.donations.index', compact('donations'));
     }
 
@@ -27,7 +27,7 @@ class DonationController extends Controller
      */
     public function create()
     {
-        // Obtener los comercios y NROs para el formulario de creación
+        
         $commerces = Commerce::all();
         $nros = Nro::all();
 
@@ -39,7 +39,7 @@ class DonationController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar los datos de la donación
+        
         $validatedData = $request->validate([
             'commerce_id' => 'required|exists:commerces,id',
             'nro_id' => 'required|exists:nros,id',
@@ -48,7 +48,7 @@ class DonationController extends Controller
             'is_paid' => 'boolean',
         ]);
 
-        // Crear la donación después de la validación exitosa
+        
         Donation::create($validatedData);
 
         return redirect('/admin/donations')->with('status', 'Donation created successfully');
@@ -59,10 +59,10 @@ class DonationController extends Controller
      */
     public function show($id)
     {
-        // Buscar la donación con sus relaciones
+        
         $donation = Donation::with(['commerce', 'nro'])->findOrFail($id);
 
-        // Retornar la vista con los detalles de la donación
+        
         return view('admin.donations.show', compact('donation'));
     }
 
@@ -71,7 +71,7 @@ class DonationController extends Controller
      */
     public function edit(string $id)
     {
-        // Buscar la donación y cargar comercios y NROs para el formulario de edición
+        
         $donation = Donation::findOrFail($id);
         $commerces = Commerce::all();
         $nros = Nro::all();
@@ -84,7 +84,7 @@ class DonationController extends Controller
      */
     public function update(Request $request, Donation $donation)
     {
-        // Validar los datos de la donación
+        
         $validatedData = $request->validate([
             'commerce_id' => 'required|exists:commerces,id',
             'nro_id' => 'required|exists:nros,id',
@@ -93,7 +93,7 @@ class DonationController extends Controller
             'is_paid' => 'boolean',
         ]);
 
-        // Actualizar la donación
+        
         $donation->update($validatedData);
 
         return redirect()->route('admin.donations.index')->with('status', 'Donation updated successfully');
@@ -104,7 +104,7 @@ class DonationController extends Controller
      */
     public function destroy(Donation $donation)
     {
-        // Eliminar la donación
+        
         $donation->delete();
 
         return redirect('/admin/donations')->with('status', 'Donation deleted successfully');

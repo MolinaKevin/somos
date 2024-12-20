@@ -28,20 +28,20 @@ class PointsPurchase extends Model {
 	
 	public function payWithPoints(User $user)
     {
-        // Comprueba que el usuario tiene suficientes puntos
+        
         if ($user->points < $this->points) {
             throw new InsufficientPointsException('The user does not have enough points to make this purchase.');
         }
 
-        // Deduce los puntos del total del usuario
+        
         $user->points -= $this->points;
         $user->save();
 
-        // Añade los puntos al total del comercio
+        
         $this->commerce->entity->points += $this->points;
         $this->commerce->save();
 
-        // Asocia el usuario a la compra
+        
         $this->user()->associate($user);
         $this->save();
     }
@@ -58,6 +58,6 @@ class PointsPurchase extends Model {
         return $this->belongsTo(Commerce::class);
     }
 
-    // Aquí van más métodos relacionados...
+    
 }
 

@@ -94,34 +94,34 @@ class User extends Authenticatable
      */
     public function calculateReferralPoints(float $initialPoints, int $level): float
     {
-        // El porcentaje inicial es 25%
+        
         $percentage = 25;
 
-        // Reducimos el porcentaje a la mitad con cada nivel
+        
         for ($i = 1; $i <= $level; $i++) {
             $percentage /= 2;
         }
-        // No entregamos puntos de referido más allá del nivel 8
+        
         if ($level >= 8) {
             return 0;
         }
 		
-        // Calculamos y devolvemos los puntos de referido
+        
         return ($initialPoints * $percentage / 100);
     }
 
 	public function payPointsPurchaseThroughQr($qrCodeData)
 	{
-		// No need to decode, $qrCodeData is already an array
+		
 		$decodedData = $qrCodeData;
 
-		// Search the commerce using the commerceId from the decoded data
+		
 		$commerce = Commerce::find($decodedData['commerceId']);
 
-		// Use the commerce to find the PointsPurchase
+		
 		$pointsPurchase = $commerce->pointsPurchases()->find($decodedData['pointsPurchaseId']);
 
-		// Pay for the PointsPurchase with the user's points
+		
 		$this->payWithPoints($pointsPurchase);
 	}
 
@@ -134,10 +134,10 @@ class User extends Authenticatable
         $currentLevelPasses = collect([$this->pass]);
 
         for ($i = 1; $i <= $level; $i++) {
-            // Obtener los referidos del nivel actual
+            
             $currentLevelPasses = User::whereIn('referrer_pass', $currentLevelPasses)->pluck('pass');
 
-            // Si estamos en el nivel deseado, retornamos el conteo
+            
             if ($i === $level) {
                 return $currentLevelPasses->count();
             }
@@ -161,7 +161,7 @@ class User extends Authenticatable
         return \DB::table('purchase_user_points')
             ->join('purchases', 'purchase_user_points.purchase_id', '=', 'purchases.id')
             ->where('purchase_user_points.user_id', $this->id)
-            ->where('purchases.user_id', '!=', $this->id) // Excluir compras realizadas por el usuario mismo
+            ->where('purchases.user_id', '!=', $this->id) 
             ->select('purchases.id as purchase_id', 'purchase_user_points.points', 'purchases.created_at')
             ->orderBy('purchases.created_at', 'desc')
             ->get();

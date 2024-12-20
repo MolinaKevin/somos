@@ -14,7 +14,7 @@ class AddAcceptedToCommercesTable extends Migration
     public function up()
     {
         Schema::table('commerces', function (Blueprint $table) {
-            $table->boolean('accepted')->default(false)->after('active'); // o la columna adecuada
+            $table->boolean('accepted')->default(false)->after('active'); 
         });
     }
 

@@ -104,12 +104,12 @@ class CategoryController extends Controller
 
     public function commerces(Category $category)
     {
-        // Obtener los IDs de las categorías hijas
+        
         $childCategoryIds = $category->children()->pluck('id');
 
         $allCategoryIds = $childCategoryIds->prepend($category->id);
 
-        // Obtener los comercios asociados a estas categorías
+        
         $commerces = Commerce::whereHas('categories', function ($query) use ($allCategoryIds) {
             $query->whereIn('categories.id', $allCategoryIds);
         })->get();
@@ -119,13 +119,13 @@ class CategoryController extends Controller
 
     public function details(Category $category)
     {
-        // Obtener todas las categorías hijas
+        
         $childCategories = $category->children;
 
-        // Obtener IDs de todas las categorías hijas
+        
         $childCategoryIds = $childCategories->pluck('id');
 
-        // Obtener los comercios asociados a la categoría inicial y sus hijas
+        
         $commerces = Commerce::whereHas('categories', function ($query) use ($childCategoryIds, $category) {
             $query->whereIn('categories.id', $childCategoryIds->prepend($category->id));
         })->get();

@@ -14,10 +14,10 @@ class CashoutController extends Controller
      */
     public function index()
     {
-        // Obtener todos los cashouts con sus relaciones
+        
         $cashouts = Cashout::with(['commerce'])->get();
 
-        // Retornar la vista con los cashouts
+        
         return view('admin.cashouts.index', compact('cashouts'));
     }
 
@@ -26,7 +26,7 @@ class CashoutController extends Controller
      */
     public function create()
     {
-        // Obtener las entidades relacionadas para el formulario
+        
         $commerces = Commerce::all();
 
         return view('admin.cashouts.create', compact('commerces'));
@@ -37,13 +37,13 @@ class CashoutController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar los datos del cashout
+        
         $validatedData = $request->validate([
             'commerce_id' => 'required|exists:commerces,id',
             'points' => 'required|numeric|min:0',
         ]);
 
-        // Crear el cashout después de la validación exitosa
+        
         Cashout::create($validatedData);
 
         return redirect('/admin/cashouts')->with('status', 'Cashout creado exitosamente');
@@ -54,10 +54,10 @@ class CashoutController extends Controller
      */
     public function show($id)
     {
-        // Buscar el cashout con sus relaciones
+        
         $cashout = Cashout::with(['commerce'])->findOrFail($id);
 
-        // Retornar la vista con los detalles del cashout
+        
         return view('admin.cashouts.show', compact('cashout'));
     }
 
@@ -66,7 +66,7 @@ class CashoutController extends Controller
      */
     public function edit(string $id)
     {
-        // Buscar el cashout y cargar las entidades relacionadas para el formulario de edición
+        
         $cashout = Cashout::findOrFail($id);
         $commerces = Commerce::all();
 
@@ -78,13 +78,13 @@ class CashoutController extends Controller
      */
     public function update(Request $request, Cashout $cashout)
     {
-        // Validar los datos del cashout
+        
         $validatedData = $request->validate([
             'commerce_id' => 'required|exists:commerces,id',
             'points' => 'required|numeric|min:0',
         ]);
 
-        // Actualizar el cashout
+        
         $cashout->update($validatedData);
 
         return redirect()->route('admin.cashouts.index')->with('status', 'Cashout actualizado exitosamente');
@@ -95,7 +95,7 @@ class CashoutController extends Controller
      */
     public function destroy(Cashout $cashout)
     {
-        // Eliminar el cashout
+        
         $cashout->delete();
 
         return redirect('/admin/cashouts')->with('status', 'Cashout eliminado exitosamente');

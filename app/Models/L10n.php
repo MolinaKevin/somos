@@ -10,10 +10,10 @@ class L10n extends Model
 {
     use HasFactory;
 
-    // Definir la tabla si no es plural o sigue un patrón diferente
+    
     protected $table = 'l10ns';
 
-    // Definir los campos que se pueden llenar de manera masiva
+    
     protected $fillable = [
         'locale',
         'group',
@@ -21,7 +21,7 @@ class L10n extends Model
         'value',
     ];
 
-    // Definir los cast para asegurar que los valores sean correctos
+    
     protected $casts = [
         'locale' => 'string',
         'group' => 'string',
@@ -29,19 +29,18 @@ class L10n extends Model
         'value' => 'string',
     ];
 
-    // Agregar reglas de validación (si es necesario para la creación)
+    
     public static $rules = [
-        'locale' => 'required|string|max:5', // idioma como 'es', 'en', etc.
-        'group' => 'required|string|max:50',  // grupo de traducción, como 'auth', 'language'
-        'key' => 'required|string|max:100',   // clave, como 'login', 'logout', etc.
-        'value' => 'required|string|max:255', // valor de la traducción
+        'locale' => 'required|string|max:5', 
+        'group' => 'required|string|max:50',  
+        'key' => 'required|string|max:100',   
+        'value' => 'required|string|max:255', 
     ];
 
     public static function boot()
     {
         parent::boot();
 
-        // Exportar las traducciones a un archivo JSON después de crear o actualizar
         static::saved(function ($l10n) {
             self::exportTranslations($l10n->locale);
         });

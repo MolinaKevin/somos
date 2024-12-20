@@ -15,15 +15,15 @@ class UserCommerceDonationController extends Controller
     {
         $user = Auth::user();
 
-        // Verificar que el usuario esté asociado con el comercio
+        
         if (!$commerce->users->contains($user->id)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Recuperar las donaciones asociadas al comercio
+        
         $query = $commerce->donations();
 
-        // Aplicar la paginación si es necesario
+        
         $perPage = $request->query('per_page', 15);
         $donations = $query->paginate($perPage);
 

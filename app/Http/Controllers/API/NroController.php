@@ -14,7 +14,7 @@ class NroController extends Controller
 
     public function index()
     {
-        // Obtener todos las nro 
+        
         $nros = Nro::all();
         return response()->json(['data' => $nros]);
     }
@@ -22,13 +22,13 @@ class NroController extends Controller
     public function assignCategories(Request $request, Nro $nro) {
         $categoryIds = $request->input('categories');
 
-        // Comprueba que las categorías existen
+        
         $categories = Category::findMany($categoryIds);
         if (count($categories) !== count($categoryIds)) {
             return response()->json(['error' => 'Some categories do not exist'], 404);
         }
 
-        // Asigna las categorías al comercio
+        
         $nro->categories()->sync($categoryIds);
 
         return response()->json(['message' => 'Categories assigned successfully'], 200);

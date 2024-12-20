@@ -18,6 +18,7 @@ use App\Http\Controllers\API\UserNroController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\UsersController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\SealController;
 use App\Http\Controllers\API\ImageUploadController;
 use App\Http\Controllers\API\AvatarUploadController;
 use App\Http\Controllers\API\L10nController;
@@ -41,8 +42,12 @@ Route::post('points/give', [PointController::class,'give']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/commerces', [CommerceController::class, 'index']);
+Route::get('/commerces/{commerce}', [CommerceController::class, 'show']);
 Route::post('/commerces/filter-by-categories', [CommerceController::class, 'filterByCategories']);
+Route::post('/commerces/filter-by-filters', [CommerceController::class, 'filterByFilters']);
 Route::apiResource('categories', CategoryController::class)->only(['index']);
+Route::apiResource('seals', SealController::class)->only(['index']);
+Route::get('seals/{seal}/commerces', [SealController::class, 'commerces']);
 Route::get('/categories/{category}/details', [CategoryController::class, 'details']);
 Route::get('/categories/{category}/commerces', [CategoryController::class, 'commerces']);
 Route::get('/nros', [NroController::class, 'index']);
@@ -56,15 +61,28 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
     Route::apiResource('users', UsersController::class); 
     Route::apiResource('somos', SomosController::class)->parameters(['somos' => 'somos']);
-    Route::apiResource('user/commerces', UserCommerceController::class);
+    //Route::apiResource('user/commerces', UserCommerceController::class);
     Route::apiResource('user/purchases', UserPurchaseController::class);
     Route::apiResource('user/point-purchases', UserPointsPurchaseController::class);
     Route::apiResource('user/nros', UserNroController::class);
     Route::apiResource('categories', CategoryController::class)->except(['index']);
-    Route::apiResource('/user/commerces/{commerce}/purchases', UserCommercePurchaseController::class);
+    Route::apiResource('seals', SealController::class)->except(['index']);
+    Route::apiResource('/user/commerces/{commerce}/purchases', UserCommercePurchaseController::class)->names([
+        'index' => 'user.purchases.index',
+        'store' => 'user.purchases.store',
+        'show' => 'user.purchases.show',
+        'update' => 'user.purchases.update',
+        'destroy' => 'user.purchases.destroy',
+    ]);
     Route::apiResource('/user/commerces/{commerce}/donations', UserCommerceDonationController::class);
     Route::apiResource('/user/commerces/{commerce}/cashouts', UserCommerceCashoutController::class);
-    Route::apiResource('/user/nros/{nro}/donations', UserNroDonationController::class);
+    Route::apiResource('/user/nros/{nro}/donations', UserNroDonationController::class)->names([
+        'index' => 'user.donations.index',
+        'store' => 'user.donations.store',
+        'show' => 'user.donations.show',
+        'update' => 'user.donations.update',
+        'destroy' => 'user.donations.destroy',
+    ]);
     Route::apiResource('/user/nros/{nro}/contributions', UserNroContributionController::class);
     Route::post('/commerces/{commerce}/categories', [CommerceController::class, 'assignCategories']);
     Route::post('/commerces/{commerce}/associate', [CommerceController::class, 'associateUser']);
@@ -84,4 +102,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/nros/{id}/upload-avatar', [AvatarUploadController::class, 'uploadNroAvatar']);
 });
 
+Route::middleware(['auth:sanctum'])->group(function () {
+    
+    Route::get('user/commerces', [UserCommerceController::class, 'index'])->name('user.commerces.index');
+    Route::post('user/commerces', [UserCommerceController::class, 'store'])->name('user.commerces.store');
+    Route::get('user/commerces/{commerce}', [UserCommerceController::class, 'show'])->name('user.commerces.show');
+    Route::delete('user/commerces/{commerce}', [UserCommerceController::class, 'destroy'])->name('user.commerces.destroy');
+
+    
+    Route::put('user/commerces/{commerce}', function (Request $request, $commerce) {
+        Log::info('Usuario autenticado:', ['user' => auth()->user()]);
+        Log::info('PUT Request Data:', [
+            'authenticated_user' => auth()->user(),
+            'commerce_id' => $commerce,
+            'request_data' => $request->all(),
+        ]);
+
+        
+        return app(UserCommerceController::class)->update($request, $commerce);
+    })->name('user.commerces.update');
+});
 

@@ -26,7 +26,7 @@ class CashoutFactory extends Factory
             'commerce_id' => function() {
                 return Commerce::factory()->create()->id;
             },
-            'points' => $this->faker->randomFloat(2, 0, 1000), // genera un número flotante aleatorio
+            'points' => $this->faker->randomFloat(2, 0, 1000), 
         ];
     }
 

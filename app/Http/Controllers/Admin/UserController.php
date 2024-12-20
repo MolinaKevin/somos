@@ -13,10 +13,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Obtener todos los clientes
+        
         $users = User::all();
 
-        // Retornar la vista con los clientes
+        
         return view('admin.users.index', compact('users'));
     }
 
@@ -39,7 +39,7 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Crear el cliente después de la validación exitosa
+        
         User::create($validatedData);
 
         return redirect('/admin/clients')->with('status', 'Client created successfully');

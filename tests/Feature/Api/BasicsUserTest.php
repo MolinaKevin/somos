@@ -36,7 +36,7 @@ it('fails to create a user with invalid data', function () {
 
     $response = $this->postJson('/api/register', $userData);
 
-    $response->assertStatus(422); // Unprocessable Entity
+    $response->assertStatus(422); 
 
     $response->assertJsonStructure(['name', 'email', 'password']);
     $this->assertArrayHasKey('name', $response->json());
@@ -73,7 +73,7 @@ it('returns the profile of the authenticated user', function () {
     $this->assertEquals($user->id, $response['id']);
     $this->assertEquals($user->name, $response['name']);
     $this->assertEquals($user->email, $response['email']);
-    $this->assertEquals('en', $response['language']); // Verificar idioma por defecto
+    $this->assertEquals('en', $response['language']); 
 });
 
 it('updates the user information', function () {
@@ -107,7 +107,7 @@ it('fails to update user information with invalid data', function () {
 
     $response = $this->patchJson('/api/users/' . $user->id, $updateData);
 
-    $response->assertStatus(422); // Unprocessable Entity
+    $response->assertStatus(422); 
 });
 
 it('deletes a user', function () {
@@ -128,8 +128,8 @@ it('fails to delete a non-existent user', function () {
 
     Sanctum::actingAs($user, ['*']);
 
-    $response = $this->deleteJson('/api/users/' . 999); // ID que no existe
+    $response = $this->deleteJson('/api/users/' . 999); 
 
-    $response->assertStatus(404); // Not Found
+    $response->assertStatus(404); 
 });
 

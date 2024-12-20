@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Nro; // Modelo para NROs
+use App\Models\Nro; 
 
 class NroController extends Controller
 {
@@ -13,10 +13,10 @@ class NroController extends Controller
      */
     public function index()
     {
-        // Obtener todas las instituciones
+        
         $nros = Nro::all();
 
-        // Retornar la vista con las instituciones
+        
         return view('admin.nros.index', compact('nros'));
     }
 
@@ -39,7 +39,7 @@ class NroController extends Controller
             'somos_id' => 'required|exists:somos,id'
         ]);
 
-        // Crear la institución después de la validación exitosa
+        
         Nro::create($validatedData);
 
         return redirect('/admin/nros')->with('status', 'Institution created successfully');

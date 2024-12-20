@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Models\Category;
 use App\Models\Commerce;
 use App\Models\User;
+use App\Enums\SealState;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -21,13 +22,13 @@ class CommerceController extends Controller
     public function assignCategories(Request $request, Commerce $commerce) {
         $categoryIds = $request->input('categories');
 
-        // Comprueba que las categorías existen
+        
         $categories = Category::findMany($categoryIds);
         if (count($categories) !== count($categoryIds)) {
             return response()->json(['error' => 'Some categories do not exist'], 404);
         }
 
-        // Asigna las categorías al comercio
+        
         $commerce->categories()->sync($categoryIds);
 
         return response()->json(['message' => 'Categories assigned successfully'], 200);
@@ -79,16 +80,37 @@ class CommerceController extends Controller
     {
         $categoryIds = $request->input('category_ids', []);
 
-        // Obtener todas las categorías hijas de las categorías seleccionadas
+        
         $allCategoryIds = Category::whereIn('id', $categoryIds)
             ->orWhereIn('parent_id', $categoryIds)
             ->pluck('id');
 
-        // Obtener los comercios asociados a estas categorías
+        
         $commerces = Commerce::whereHas('categories', function ($query) use ($allCategoryIds) {
-            $query->whereIn('categories.id', $allCategoryIds); // Especifica 'categories.id'
+            $query->whereIn('categories.id', $allCategoryIds); 
         })->get();
 
         return response()->json(['data' => $commerces]);
     }
+
+    public function filterByFilters(Request $request)
+    {
+        $validated = $request->validate([
+            'category_ids' => ['array'],
+            'category_ids.*' => ['integer', 'exists:categories,id'],
+            'seals' => ['array'],
+            'seals.*.id' => ['required', 'integer', 'exists:seals,id'],
+            'seals.*.state' => ['required', 'regex:/^\d+$|^(none|partial|full)$/'],
+        ]);
+
+        $normalizedSeals = SealState::normalize($validated['seals'] ?? []);
+
+        $commerces = Commerce::filterBy(
+            $validated['category_ids'] ?? [],
+            $normalizedSeals
+        )->get();
+
+        return response()->json(['data' => $commerces]);
+    }
+    
 }

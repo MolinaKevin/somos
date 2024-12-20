@@ -43,8 +43,8 @@ class Purchase extends Model
 
     public function distributePoints()
     {
-        $points = $this->points; // Puntos totales a distribuir
-        $user = $this->user; // Usuario que hizo la compra
+        $points = $this->points; 
+        $user = $this->user; 
 
 
         $givedToUserPoints = $this->points * 0.25;
@@ -52,23 +52,23 @@ class Purchase extends Model
         $user->save();
 
 
-        // Registrar puntos para el usuario inicial en `purchase_user_points`
+        
         \DB::table('purchase_user_points')->insert([
             'purchase_id' => $this->id,
             'user_id' => $user->id,
             'points' => $givedToUserPoints,
         ]);
 
-        $level = 1; // Nivel de referencia
+        $level = 1; 
 
         while ($user->referrer && $level <= 8) {
-            // Calcula los puntos del referido
+            
             $referralPoints = $user->calculateReferralPoints($points, $level);
 
-            // Actualiza los puntos del referido
+            
             $user->referrer->increment('points', $referralPoints);
 
-            // Registrar los puntos en `purchase_user_points`
+            
             \DB::table('purchase_user_points')->insert([
                 'purchase_id' => $this->id,
                 'user_id' => $user->referrer->id,
@@ -77,24 +77,24 @@ class Purchase extends Model
 
             $givedToUserPoints += $referralPoints;
 
-            // Sube un nivel y pasa al siguiente usuario referido
+            
             $level++;
             $user = $user->referrer;
         }
 
-        // Actualizamos los puntos que se dieron a los usuarios
+        
         $this->gived_to_users_points = $givedToUserPoints;
         $this->donated_points = $this->points - $givedToUserPoints;
 
 
-        // Si ha alcanzado el final de la cadena de referidos, asigna los puntos restantes a donated_points
+        
         if (!$user->referrer || $level > 8) {
             $this->commerce->donated_points += $this->points - $givedToUserPoints;
         }
 
         $this->save();
 
-        // Los puntos restantes se asignan al comercio
+        
         $this->commerce->increment('gived_points', $this->points);
         $this->commerce->increment('donated_points', $this->points - $givedToUserPoints);
     }
