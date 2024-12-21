@@ -64,7 +64,20 @@ class UserCommerceController extends Controller
             'seals' => 'nullable|array',
             'seals.*.id' => 'exists:seals,id',
             'seals.*.state' => ['required', 'regex:/^\d+$|^(none|partial|full)$/'],
+            'category_id' => [
+                'nullable',
+                'exists:categories,id',
+            ],
         ]);
+
+        if (isset($validatedData['category_id'])) {
+            $categories = $validatedData['categories'] ?? [];
+            if (!in_array($validatedData['category_id'], $categories)) {
+                $categories[] = $validatedData['category_id'];
+                $validatedData['categories'] = $categories;
+            }
+        }
+
 
         
         $normalizedSeals = SealState::normalize($validatedData['seals'] ?? []);
@@ -133,6 +146,10 @@ class UserCommerceController extends Controller
                 'seals' => 'nullable|array',
                 'seals.*.id' => 'exists:seals,id',
                 'seals.*.state' => ['required', 'regex:/^(none|partial|full|[0-2])$/'],
+                'category_id' => [
+                    'nullable',
+                    'exists:categories,id',
+                ],
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -143,7 +160,14 @@ class UserCommerceController extends Controller
             return response()->json(['errors' => $e->errors()], 422);
         }
 
-        Log::info('validado', ['validatedData' => $validatedData]);
+        if (isset($validatedData['category_id'])) {
+            $categories = $validatedData['categories'] ?? $commerce->categories->pluck('id')->toArray();
+            if (!in_array($validatedData['category_id'], $categories)) {
+                $categories[] = $validatedData['category_id'];
+                $validatedData['categories'] = $categories;
+            }
+        }
+
         $normalizedSeals = SealState::normalize($validatedData['seals'] ?? []);
 
         $commerce->update($validatedData);

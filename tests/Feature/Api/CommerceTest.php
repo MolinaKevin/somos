@@ -3,6 +3,7 @@
 use App\Models\User;
 use App\Models\Commerce;
 use App\Models\Foto;
+use App\Models\Category;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -70,7 +71,6 @@ it('can get a specific commerce for the authenticated user', function () {
     $response = $this->get("/api/user/commerces/{$commerce->id}");
 
     $response->assertStatus(200);
-    //$response->assertJson(array_merge($commerce->toArray(), ['commerce' => $commerce->toArray()]));
 
     $response->assertJson([
         'id' => $commerce->id,
@@ -94,7 +94,6 @@ it('can get a specific commerce for the authenticated user', function () {
         'percent' => $commerce->percent,
         'created_at' => $commerce->created_at->toISOString(),
         'updated_at' => $commerce->updated_at->toISOString(),
-            //'is_open' => $commerce->is_open,
     ]);
 
 });
@@ -214,8 +213,6 @@ it('can update the background_image of a specific commerce based on the provided
     
     $updatedCommerce = $commerce->fresh(); 
 
-    //dd($updatedCommerce->background_image_id);
-
     
     $this->assertEquals($backgroundImageRecord->id, $updatedCommerce->background_image_id, 'El background_image_id no se actualizó correctamente.');
 
@@ -229,3 +226,121 @@ it('can update the background_image of a specific commerce based on the provided
     $expectedBackgroundImageUrl = asset('storage/' . $backgroundImageRecord->path);
     $this->assertEquals($expectedBackgroundImageUrl, $updatedCommerce->background_image, 'La URL del background_image no coincide.');
 });
+
+it('can assign a main category when creating a new commerce', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user, ['*']);
+
+    $categories = Category::factory()->count(3)->create();
+
+    $mainCategory = $categories->first();
+
+    $commerceData = [
+        'name' => 'Test Commerce',
+        'address' => '123 Street',
+        'city' => 'Göttingen',
+        'plz' => '37075',
+        'opening_time' => '7:53', 
+        'closing_time' => '21:00',
+        'latitude' => '51.53636134',
+        'longitude' => '9.91903678',
+        'percent' => 10.0,
+        'category_id' => $mainCategory->id, 
+        'categories' => [$categories[0]->id, $categories[1]->id, $categories[2]->id]
+    ];
+
+    $response = $this->postJson('/api/user/commerces', $commerceData);
+
+    $response->assertStatus(201);
+
+    $this->assertDatabaseHas('commerces', [
+        'name' => 'Test Commerce',
+        'address' => '123 Street',
+        'city' => 'Göttingen',
+        'plz' => '37075',
+        'opening_time' => '07:53:00', 
+        'closing_time' => '21:00:00',
+        'latitude' => '51.53636134',
+        'longitude' => '9.91903678',
+        'percent' => 10.0,
+        'category_id' => $mainCategory->id,
+    ]);
+
+    $commerce = Commerce::where('name', 'Test Commerce')->first();
+
+    expect($commerce->categories)->toHaveCount(3);
+    expect($commerce->categories->pluck('id'))->toContain($categories[0]->id)
+         ->and($commerce->categories->pluck('id'))->toContain($categories[1]->id)
+         ->and($commerce->categories->pluck('id'))->toContain($categories[2]->id);
+
+    expect($commerce->category_id)->toBe($mainCategory->id);
+});
+
+it('can update the main category of a commerce', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user, ['*']);
+
+    $categories = Category::factory()->count(3)->create();
+
+    $commerce = Commerce::factory()->create([
+        'category_id' => $categories[0]->id, 
+    ]);
+    $commerce->categories()->attach([$categories[0]->id, $categories[1]->id]);
+
+    $updateData = [
+        'category_id' => $categories[1]->id, 
+    ];
+
+    $response = $this->putJson("/api/user/commerces/{$commerce->id}", $updateData);
+
+    $response->assertStatus(200);
+
+    $this->assertDatabaseHas('commerces', [
+        'id' => $commerce->id,
+        'category_id' => $categories[1]->id,
+    ]);
+
+    $updatedCommerce = $commerce->fresh();
+
+    expect($updatedCommerce->category_id)->toBe($categories[1]->id);
+
+    expect($updatedCommerce->categories->pluck('id'))->toContain($categories[1]->id);
+});
+
+it('can create a commerce without assigning a main category', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user, ['*']);
+
+    $categories = Category::factory()->count(3)->create();
+
+    $commerceData = [
+        'name' => 'No Main Category Commerce',
+        'address' => '456 Avenue',
+        'city' => 'Berlin',
+        'plz' => '10115',
+        'opening_time' => '7:53',
+        'closing_time' => '21:00',
+        'latitude' => '52.5200',
+        'longitude' => '13.4050',
+        'percent' => 5.0,
+        'categories' => [$categories[0]->id, $categories[1]->id],
+    ];
+
+    $response = $this->postJson('/api/user/commerces', $commerceData);
+
+    $response->assertStatus(201);
+
+    $this->assertDatabaseHas('commerces', [
+        'name' => 'No Main Category Commerce',
+        'category_id' => null,
+    ]);
+
+    $commerce = Commerce::where('name', 'No Main Category Commerce')->first();
+
+    expect($commerce->categories)->toHaveCount(2);
+    expect($commerce->categories->pluck('id'))->toContain($categories[0]->id)
+                                             ->and($commerce->categories->pluck('id'))->toContain($categories[1]->id);
+
+    expect($commerce->category_id)->toBeNull();
+});
+

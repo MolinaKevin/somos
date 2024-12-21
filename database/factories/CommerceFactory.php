@@ -39,6 +39,7 @@ class CommerceFactory extends Factory
             'accepted' => false,
             'donated_points' => 0,
             'gived_points' => 0,
+            'category_id' => null,
         ];
     }
 	

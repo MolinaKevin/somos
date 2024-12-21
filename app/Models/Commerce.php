@@ -23,7 +23,8 @@ class Commerce extends Model
         'name', 'description', 'address', 'city', 'plz', 'email',
         'phone_number', 'website', 'opening_time', 'closing_time',
         'latitude', 'longitude', 'points', 'percent', 'donated_points',
-        'gived_points', 'active', 'accepted', 'background_image_id'
+        'gived_points', 'active', 'accepted', 'background_image_id',
+        'category_id'
     ];
 	
     protected $appends = ['is_open', 'avatar_url', 'background_image', 'fotos_urls', 'category_ids', 'seals_with_state', 'seal_ids'];
@@ -201,6 +202,11 @@ class Commerce extends Model
 	public function users()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function mainCategory()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function categories()
