@@ -24,6 +24,10 @@ class Somos extends Model
         'points',
     ];
 
+    protected $casts = [
+        'points' => 'decimal:5',
+    ];
+
     public function nros()
     {
         return $this->hasMany(Nro::class);

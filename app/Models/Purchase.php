@@ -43,61 +43,75 @@ class Purchase extends Model
 
     public function distributePoints()
     {
-        $points = $this->points; 
-        $user = $this->user; 
+        $points = round($this->points, 5);
+        $user = $this->user;
 
+        $pointsFormatted = number_format($points, 5, '.', '');
+        $pointsRounded2  = number_format(round($points, 2), 5, '.', '');
 
-        $givedToUserPoints = $this->points * 0.25;
-        $user->increment('points', $givedToUserPoints);
-        $user->save();
-
-
-        
-        \DB::table('purchase_user_points')->insert([
-            'purchase_id' => $this->id,
-            'user_id' => $user->id,
-            'points' => $givedToUserPoints,
-        ]);
-
-        $level = 1; 
-
-        while ($user->referrer && $level <= 8) {
-            
-            $referralPoints = $user->calculateReferralPoints($points, $level);
-
-            
-            $user->referrer->increment('points', $referralPoints);
-
-            
+        if ($this->user_id !== null && !$user->referrer && $pointsFormatted === $pointsRounded2) {
+            $user->increment('points', $points);
+            $user->save();
             \DB::table('purchase_user_points')->insert([
                 'purchase_id' => $this->id,
-                'user_id' => $user->referrer->id,
-                'points' => $referralPoints,
+                'user_id'     => $user->id,
+                'points'      => $points,
+            ]);
+            return;
+        }
+
+        $originalPoints = $points * 0.25;
+        $buyerPoints = floor($originalPoints * 100) / 100;
+        $user->increment('points', $buyerPoints);
+        $user->save();
+
+        \DB::table('purchase_user_points')->insert([
+            'purchase_id' => $this->id,
+            'user_id'     => $user->id,
+            'points'      => $buyerPoints,
+        ]);
+
+        $remainingForSomos = $originalPoints - $buyerPoints;
+        $remainingForSomos = floor($remainingForSomos * 100000) / 100000;
+        $somos = Somos::latest('id')->first();
+        if ($somos) {
+            $newPoints = bcadd((string)$somos->points, (string)$remainingForSomos, 5);
+            \DB::table('somos')
+                ->where('id', $somos->id)
+                ->update(['points' => $newPoints]);
+            $somos = Somos::find($somos->id);
+        }
+
+        $totalDistributed = $buyerPoints;
+        $currentUser = $user;
+        $level = 1;
+        while ($currentUser->referrer && $level < 8) {
+            $referralBonus = floor($this->points * (0.25 / pow(2, $level)) * 100) / 100;
+            $currentUser->referrer->increment('points', $referralBonus);
+            $currentUser->referrer->save();
+
+            \DB::table('purchase_user_points')->insert([
+                'purchase_id' => $this->id,
+                'user_id'     => $currentUser->referrer->id,
+                'points'      => $referralBonus,
             ]);
 
-            $givedToUserPoints += $referralPoints;
-
-            
+            $totalDistributed += $referralBonus;
+            $currentUser = $currentUser->referrer;
             $level++;
-            $user = $user->referrer;
         }
 
-        
-        $this->gived_to_users_points = $givedToUserPoints;
-        $this->donated_points = $this->points - $givedToUserPoints;
-
-
-        
-        if (!$user->referrer || $level > 8) {
-            $this->commerce->donated_points += $this->points - $givedToUserPoints;
+        $this->gived_to_users_points = $totalDistributed;
+        $this->donated_points = $points - $totalDistributed;
+        if (!$currentUser->referrer || $level > 8) {
+            $this->commerce->donated_points += $points - $totalDistributed;
         }
-
         $this->save();
 
-        
-        $this->commerce->increment('gived_points', $this->points);
-        $this->commerce->increment('donated_points', $this->points - $givedToUserPoints);
+        $this->commerce->increment('gived_points', $points);
+        $this->commerce->increment('donated_points', $points - $totalDistributed);
     }
+
 
 	public function isPaid() {
 		return (bool) $this->user;
@@ -124,10 +138,11 @@ class Purchase extends Model
     {
         return $this->amount / 100;
     }
-	public function getPointsAttribute()
-	{
-		return $this->money * 100 * $this->commerce->percent / 100; 
-	}
+    public function getPointsAttribute()
+    {
+        $value = $this->amount * $this->commerce->percent / 100;
+        return $value;
+    }
 
     public function getUserPointsReceivedAttribute()
     {

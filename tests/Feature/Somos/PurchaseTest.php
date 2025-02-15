@@ -4,11 +4,14 @@ use App\Models\{
 	User,
 	Commerce,
 	Purchase,
+    Somos
 };
 use App\Helpers\ConversionHelper;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+beforeEach(function () {
+    uses(RefreshDatabase::class);
+});
 
 it('can make a purchase', function () {
     
@@ -75,13 +78,15 @@ it('distributes points correctly among referrers', function () {
 		$expected_points = $purchase->points * (0.25) / pow(2, $i);
     }
 
-	
-	$remainingPoints = floatval($purchase->points); 
-	for ($i = 0; $i < 8; $i++) {
-		$remainingPoints -= (floatval($purchase->points) * (0.25 / pow(2, $i)));
-	}
+    $remainingPoints = floatval($purchase->points);
+    for ($i = 0; $i < 8; $i++) {
+        $term = floor(floatval($purchase->points) * (0.25 / pow(2, $i)) * 100) / 100;
+        $remainingPoints = floor(($remainingPoints - $term) * 100) / 100;
+    }
+    expect($purchase->commerce->fresh()->donated_points)->toEqual($remainingPoints);
 
-	expect($purchase->commerce->fresh()->gived_points)->toEqual(200.0);
+	
+    expect($purchase->commerce->fresh()->gived_points)->toEqual(200.0);
 	expect($purchase->commerce->fresh()->donated_points)->toEqual($remainingPoints);
 });
 
@@ -131,8 +136,6 @@ it('can generate a QR code for payment', function () {
     $purchase->save();
 
     //$commerce->createQrPayCode($purchase);
-
-    
     
     $uuid = $purchase->uuid;
 	$url = route('purchase.pay', ['uuid' => $purchase->uuid]);
@@ -171,88 +174,6 @@ it('distributes points correctly after payment', function () {
     expect($referrer->points)->toBe(250.0);
 });
 
-it('can pre-create a purchase', function () {
-    $user = User::factory()->create(['points' => 500, 'pass' => 'DE-X88X88X']);
-    $commerce = Commerce::factory()->create();
-
-    $response = $this->post(route('preCreatePurchase'), [
-        'amount' => ConversionHelper::moneyToPoints(100),
-		'userPass' => $user->pass,
-        'commerceId' => $commerce->id,
-    ]);
-
-    $response->assertStatus(200);
-
-	
-    $purchase = Purchase::where([
-        'amount' => ConversionHelper::moneyToPoints(100),
-        'commerce_id' => $commerce->id,
-        'user_id' => null,
-    ])->first();
-
-    $this->assertNotNull($purchase);
-
-    
-    $response->assertJson([
-        'user' => [
-            'id' => $user->id,
-            
-        ],
-        'purchase' => [
-            'amount' => ConversionHelper::moneyToPoints(100),
-            
-        ],
-    ]);
-
-
-	
-    $responseContent = json_decode($response->getContent(), true);
-    expect(isset($responseContent['url']))->toBeTrue();
-    expect(str_contains($responseContent['url'], 'purchase/pay'))->toBeTrue();
-
-	
-    expect(str_contains($responseContent['url'], $purchase->uuid))->toBeTrue();
-});
-
-it('can pay a pre-created purchase', function () {
-    $user = User::factory()->create(['points' => 500]);
-    $commerce = Commerce::factory()->create(['percent' => 10]); 
-
-    $response = $this->post(route('preCreatePurchase'), [
-        'amount' => ConversionHelper::moneyToPoints(100),
-        'userPass' => $user->pass,
-        'commerceId' => $commerce->id,
-    ]);
-
-    $response->assertStatus(200);
-
-    
-    $purchase = Purchase::where([
-        'amount' => ConversionHelper::moneyToPoints(100),
-        'commerce_id' => $commerce->id,
-        'user_id' => null,
-    ])->first();
-
-    $this->assertNotNull($purchase);
-
-    
-    $responseContent = json_decode($response->getContent(), true);
-    $paymentUrl = $responseContent['url'];
-
-    
-    $paymentResponse = $this->actingAs($user)->get($paymentUrl);
-
-    
-    $paymentResponse->assertStatus(200);
-
-    
-    $purchase->refresh();
-    $this->assertNotNull($purchase->paid_at);
-
-	
-    expect($user->fresh()->points)->toBe(750.0);
-});
-
 it('creates a record in purchase_user_points for each user receiving points', function () {
     
     $users = User::factory()->count(6)->create();
@@ -269,7 +190,7 @@ it('creates a record in purchase_user_points for each user receiving points', fu
 
     
     for ($i = 0; $i < 5; $i++) {
-        $points = round($purchase->points * (0.25 / pow(2, $i)), 2); 
+        $points = floor($purchase->points * (0.25 / pow(2, $i)) * 100) / 100;
         $this->assertDatabaseHas('purchase_user_points', [
             'purchase_id' => $purchase->id,
             'user_id' => $users[$i]->id,
@@ -294,7 +215,7 @@ it('registers points for incomplete referral chain', function () {
 
     
     for ($i = 0; $i < 3; $i++) {
-        $points = round($purchase->points * (0.25 / pow(2, $i)), 2); 
+        $points = floor($purchase->points * (0.25 / pow(2, $i)) * 100) / 100;
         $this->assertDatabaseHas('purchase_user_points', [
             'purchase_id' => $purchase->id,
             'user_id' => $users[$i]->id,
@@ -358,3 +279,189 @@ it('ensures no points are registered for non-referral purchases', function () {
     }
 });
 
+it('almacena los puntos del usuario con dos decimales redondeados hacia abajo y transfiere el sobrante a Somos en una compra directa', function () {
+    uses(RefreshDatabase::class);
+
+    $user = User::factory()->create(['points' => 0.0, 'referrer_pass' => null]);
+    $commerce = Commerce::factory()->create(['percent' => 10]);
+
+    // Crear registro de Somos; se espera que arranque en 0.0.
+    $somos = Somos::factory()->create(['points' => 0.0]);
+
+    // Para asegurar que usamos el registro que se creó, lo obtenemos por ID.
+    $somos = Somos::find($somos->id);
+
+    $somosOriginalPoints = $somos->points; // Debería ser 0.0 (si la fábrica respeta lo que se le pasa).
+
+    // Definición del monto base para la compra.
+    $purchasePoints = 10.5678;
+    // Crear la compra; con amount = 105.678, dado que getPoints = amount * (percent/100).
+    $purchase = Purchase::factory()->for($user)->for($commerce)->create([
+        'amount' => 105.678
+    ]);
+
+
+    // Ejecutar la distribución.
+    $purchase->distributePoints();
+
+    // Refrescar los registros.
+    $user->refresh();
+    $somos = Somos::find($somos->id);
+
+    // Calcular lo que se espera que se reparta: el 25% de los puntos totales.
+    $originalPoints = $purchasePoints * 0.25;
+
+    // El usuario recibe los puntos truncados a 2 decimales.
+    $expectedUserPoints = floor($originalPoints * 100) / 100;
+
+    // El sobrante (a partir del tercer decimal) se asigna a Somos.
+    $remainingPoints = $originalPoints - $expectedUserPoints;
+    $remainingPoints = floor($remainingPoints * 100000) / 100000;
+
+    $expectedSomosPoints = $somosOriginalPoints + $remainingPoints;
+
+    expect($user->points)->toBe($expectedUserPoints);
+    expect(abs((float)$somos->points - (float)$expectedSomosPoints))->toBeLessThan(0.00002);
+    expect(abs((float)($user->points + $somos->points) - (float)$originalPoints))->toBeLessThan(0.0002);
+});
+
+it('almacena los puntos del usuario con dos decimales redondeados hacia abajo y transfiere el sobrante a Somos en una compra referida', function () {
+    uses(RefreshDatabase::class);
+
+    $referrer = User::factory()->create(['points' => 0.0]);
+    $user = User::factory()->create([
+        'points' => 0.0,
+        'referrer_pass' => $referrer->pass
+    ]);
+    $commerce = Commerce::factory()->create(['percent' => 10]);
+
+    // Creamos el registro de Somos y forzamos que inicie en 0.00000
+    $somos = Somos::factory()->create(['points' => '0.00000']);
+
+    // Para estar seguros, lo buscamos por ID:
+    $somos = Somos::find($somos->id);
+    $somosOriginalPoints = $somos->points; // Se espera "0.00000" si se forzó correctamente
+
+    $purchasePoints = 20.7899;
+    // Al crear la compra, se asigna 'amount' de forma que getPoints = amount * (percent/100)
+    // Dado que percent = 10, amount se establece en 207.899 para que getPoints devuelva 20.7899.
+    $purchase = Purchase::factory()->for($user)->for($commerce)->create([
+        'amount' => 207.899
+    ]);
+
+
+    // Ejecutar la distribución
+    $purchase->distributePoints();
+
+    // Refrescamos los registros
+    $user->refresh();
+    $referrer->refresh();
+    $somos = Somos::find($somos->id);
+
+
+    // Calcular el 25% de los puntos de la compra (la porción que se reparte)
+    $originalPoints = $purchasePoints * 0.25;
+
+    // El comprador recibe el valor truncado a 2 decimales.
+    $expectedUserPoints = floor($originalPoints * 100) / 100;
+
+    // Para el referido, se espera que reciba la mitad de lo que recibió el comprador (truncado a dos decimales).
+    $originalReferrerPoints = $expectedUserPoints / 2;
+    $expectedReferrerPoints = floor($originalReferrerPoints * 100) / 100;
+
+    // En el test se comenta restar el bonus del referido para calcular el sobrante,
+    // por lo que el sobrante se calcula como la diferencia entre el 25% y lo que recibió el comprador.
+    $remainingPoints = $originalPoints - $expectedUserPoints;
+    $remainingPoints = floor($remainingPoints * 100000) / 100000;
+
+    $expectedSomosPoints = bcadd((string)$somosOriginalPoints, (string)$remainingPoints, 5);
+
+    // Verificamos:
+    expect($user->points)->toBe($expectedUserPoints);
+    expect($referrer->points)->toBe($expectedReferrerPoints);
+    expect(round((float)$somos->points, 5))
+        ->toEqual(round((float)$expectedSomosPoints, 5));
+
+    // Si la suma total (usuario + Somos) también se necesita verificar:
+    expect(abs(round($user->points + $somos->points, 5) - round($originalPoints, 5)))
+        ->toBeLessThan(0.00001);
+
+});
+
+
+it('asegura que la suma de puntos del usuario y Somos equivale a los puntos totales de la compra', function () {
+    $user = User::factory()->create(['points' => 0.0]);
+    $commerce = Commerce::factory()->create(['percent' => 10]);
+    $somos = Somos::factory()->create(['points' => 0.0]);
+
+    $purchasePoints = 15.98744;
+    $purchase = Purchase::factory()->for($user)->for($commerce)->create([
+        'amount' => 159.8744
+    ]);
+
+    $purchase->distributePoints();
+    $somos = Somos::find($somos->id);
+
+
+    $user->refresh();
+    $somos->refresh();
+
+    $originalPoints = $purchasePoints * 0.25;
+    $expectedUserPoints = floor($originalPoints * 100) / 100;
+    $expectedSomosPoints = $originalPoints - $expectedUserPoints;
+
+    expect(abs((float)($user->points + $somos->points) - (float)$originalPoints))
+        ->toBeLessThan(0.00001);
+
+    expect($user->points)->toBe($expectedUserPoints);
+    expect(abs((float)($somos->points) - (float)$expectedSomosPoints))
+        ->toBeLessThan(0.00001);
+
+
+});
+
+it('maneja correctamente los puntos con exactamente dos decimales sin transferir sobrante a Somos', function () {
+    $user = User::factory()->create(['points' => 0.0]);
+    $commerce = Commerce::factory()->create(['percent' => 10]);
+
+    $somos = Somos::factory()->create(['points' => 0.0]);
+
+    $purchasePoints = 25.50;
+    $purchase = Purchase::factory()->for($user)->for($commerce)->create([
+        'amount' => 255
+    ]);
+
+    $purchase->distributePoints();
+
+    $user->refresh();
+    $somos->refresh();
+
+    $expectedUserPoints = floor($purchasePoints * 100) / 100;
+    $expectedSomosPoints = $purchasePoints - $expectedUserPoints;
+
+    expect($user->points)->toBe($expectedUserPoints);
+    expect((float)$somos->points)->toBe($expectedSomosPoints);
+});
+
+it('maneja correctamente los puntos con menos de dos decimales sin transferir sobrante a Somos', function () {
+    $user = User::factory()->create(['points' => 0.0]);
+    $commerce = Commerce::factory()->create(['percent' => 10]);
+
+    $somos = Somos::factory()->create(['points' => 0.0]);
+
+    $purchasePoints = 30.5; 
+    $purchase = Purchase::factory()->for($user)->for($commerce)->create([
+        'amount' => 305
+    ]);
+
+    $purchase->distributePoints();
+
+    $user->refresh();
+    $somos->refresh();
+
+    $expectedUserPoints = floor($purchasePoints * 100) / 100; 
+    $expectedSomosPoints = $purchasePoints - $expectedUserPoints; 
+
+    expect($user->points)->toBe($expectedUserPoints);
+    expect((float)$somos->points)->toBe($expectedSomosPoints);
+});

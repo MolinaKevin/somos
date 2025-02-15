@@ -187,7 +187,7 @@ it('only includes points from referrals up to the 7th level and excludes the use
     $responseData = $response->json('data');
 
     
-    $expectedPurchaseIds = collect($purchases)->slice(0, 8)->pluck('id');
+    $expectedPurchaseIds = collect($purchases)->slice(0, 7)->pluck('id');
 
     $returnedPurchaseIds = collect($responseData)->pluck('purchase_id')->unique();
     $this->assertEquals($expectedPurchaseIds->sort()->values()->all(), $returnedPurchaseIds->sort()->values()->all());
